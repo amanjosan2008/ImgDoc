@@ -64,8 +64,6 @@ f.pack()
 g = Button(root, text="Delete Backups", command=delete)
 g.pack()
 
-
-
 exit = Button(root, text="Exit App", command=exit)
 exit.pack()
 
