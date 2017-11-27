@@ -13,5 +13,3 @@ from PIL import Image
 
 im = Image.open("unnamed.webp").convert("RGB")
 im.save("test.jpg","jpeg")
-
-

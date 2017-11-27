@@ -15,15 +15,11 @@ def ls():
     for name in glob.glob(os.path.join(en.get(), '*')):
         Label(root, text=name, width=100, anchor=W, justify=LEFT).pack()
 
-def x():
-    x = 0
-    for name in glob.glob(os.path.join(en.get(), '*')):
-        x+=1
-    return x
-
 def count():
-    Label(root, text="Count: " + str(x()), width=100, anchor=W, justify=LEFT).pack()
-
+        x = 0
+        for name in glob.glob(os.path.join(en.get(), '*')):
+            x+=1
+        Label(root, text="Count: " + str(x), width=100, anchor=W, justify=LEFT).pack()
 
 def exit():
     print("Application closed by user !!")
@@ -34,7 +30,6 @@ Label(root, text="Renamer App", font=("Times", 35)).pack()
 en = Entry(root, width=30)
 en.pack()
 en.focus_set()
-
 
 Button(root, text="ls", width=20, command=ls).pack()
 Button(root, text="Count", width=20, command=count).pack()
