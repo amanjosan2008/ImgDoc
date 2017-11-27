@@ -6,8 +6,7 @@ To Do List:
 # HAUceV0.jpg.jpg => not renamed when image not supported
 # use dwebp 1.webp -o - | convert - 1.jpg
 # Do not run command recursively
-# Lesser Logging on Screen
-# Remove logic to remove double extensions
+# Backup at outside of Destination folder
 
 # Check no of files before & after execution
 # Delete Archive if no of files is same
