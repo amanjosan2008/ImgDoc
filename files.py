@@ -15,3 +15,10 @@ for file in files(path1):
 print (Counter(x))
 print (x[0])
 print (x[1])
+
+    word_count = Counter(words)
+    print("The Top {0} words".format(n))
+    for ext, count in word_count.most_common(n):
+        print("{0}: {1}".format(word, count))
+
+https://gist.github.com/bradmontgomery/4717521
