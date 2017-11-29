@@ -6,6 +6,7 @@ import tarfile
 import imghdr, shutil
 import subprocess
 from pathlib import Path
+from collections import Counter
 
 root = Tk()
 
@@ -145,26 +146,15 @@ def duplicate():
 def similar():
     Label(root, text="similar Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
 def stats():
+    x = []
     for file in files(en.get()):
         ext = os.path.splitext(file)[1][1:]
-        if ext == "jpg":
-
-        if ext == "jpg":
-
-        if ext == "jpg":
-
-        if ext == "jpg":
-
-        if ext == "jpg":
-
-        if ext == "jpg":
-
-        if ext == "jpg":
-        Label(root, text=ext, width=50, anchor=W, justify=LEFT).pack()
-
-
-
+        x.append(ext)
+        count = Counter(x)
+    for ext, count in count.most_common(10):
+        Label(root, text=("{0}: {1}".format(ext, count)), width=50, anchor=W, justify=LEFT).pack()
     Label(root, text="Done Stats", width=50, anchor=W, justify=LEFT).pack()
+
 
 Label(root, text="Renamer App", font=("Times", 35), width=20, anchor=W, justify=LEFT).pack()
 
