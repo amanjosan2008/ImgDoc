@@ -17,12 +17,12 @@ def files(path):
 
 def ls():
     for file in files(en.get()):
-        Label(root, text=file, width=50, anchor=W, justify=LEFT).pack()
+        listbox.insert(END, file)
 
 def count():
     global leng
     leng = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
-    Label(root, text="Count: "+str(leng), width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "Count: "+str(leng))
 
 def backup():
     try:
@@ -37,7 +37,7 @@ def backup():
         tar.add(name)
     wr.close()
     tar.close()
-    Label(root, text="Backup Done", width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "--------------Backup Done-----------------")
 
 def missing():
     for rootdir, dirs, files in os.walk(en.get()):
@@ -46,19 +46,19 @@ def missing():
             fn, ext = os.path.splitext(file)
             ftype = imghdr.what(file)
             if ftype == None:
-                Label(root, text=file + "Unsupported file", width=50, anchor=W, justify=LEFT).pack()
+                listbox.insert(END, "Unsupported file")
             else:
                 newname = file +"."+ ftype
                 if not ext:
                     filechk = Path(newname)
                     if filechk.is_file():
-                        Label(root, text=file+": File already EXISTS, not overwriting: "+str(filechk), width=50, anchor=W, justify=LEFT).pack()
+                        listbox.insert(END, file+": File already EXISTS, not overwriting: "+str(filechk))
                     else:
                         shutil.move(file, newname)
-                        Label(root, text=file+": has no ext, Appending: "+ftype, width=50, anchor=W, justify=LEFT).pack()
+                        listbox.insert(END, file+": has no ext, Appending: "+ftype)
                 else:
                     continue
-    Label(root, text="Done adding missing extensions", width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "--------------Done adding missing extensions--------------")
 
 def correct():
     for rootdir, dirs, files in os.walk(en.get()):
@@ -78,28 +78,28 @@ def correct():
                             filechk = file.replace(ext,ftype)
                             filechk2 = Path(filechk)
                             if filechk2.is_file():
-                                Label(root, text=file+": File already EXISTS, not overwritting: "+filechk2, width=50, anchor=W, justify=LEFT).pack()
+                                listbox.insert(END, file+": File already EXISTS, not overwritting: "+filechk2)
                             else:
                                 # rename the file
                                 shutil.move(file, file.replace(ext,ftype))
-                                Label(root, text=file+ext+("=>")+ftype, width=50, anchor=W, justify=LEFT).pack()
+                                listbox.insert(END, file+ext+("=>")+ftype)
                     else:
                         if ext == "png":
                             filechk = file.replace(ext,"jpg")
                             filechk2 = Path(filechk)
                             if filechk2.is_file():
-                                Label(root, text=file+": File already EXISTS, not overwritting: "+filechk2, width=50, anchor=W, justify=LEFT).pack()
+                                listbox.insert(END, file+": File already EXISTS, not overwritting: "+filechk2)
                             else:
                                 shutil.move(file, file.replace(ext,"jpg"))
-                                Label(root, text=file+": File type not determined for PNG => "+file.replace(ext,"jpg"), width=50, anchor=W, justify=LEFT).pack()
+                                listbox.insert(END, file+": File type not determined for PNG => "+file.replace(ext,"jpg"))
                         else:
-                            Label(root, text=file+": Could not determine file type.", width=50, anchor=W, justify=LEFT).pack()
+                            listbox.insert(END, file+": Could not determine file type.")
                 else:
                     # Correct Extension
                     continue
             else:
-                Label(root, text=file+": No Extension detected, Run Missing Extensions function.", width=50, anchor=W, justify=LEFT).pack()
-    Label(root, text="Done correcting extensions", width=50, anchor=W, justify=LEFT).pack()
+                listbox.insert(END, file+": No Extension detected, Run Missing Extensions function.")
+    listbox.insert(END, "--------------Done correcting extensions--------------")
 
 def webpconv():
     for rootdir, dirs, files in os.walk(en.get()):
@@ -111,18 +111,17 @@ def webpconv():
                 fnpng = fn + ".png"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    print ()
-                    Label(root, text=file+": File already EXISTS, not overwritting: "+fnpng, width=50, anchor=W, justify=LEFT).pack()
+                    listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
                 else:
                     conv = subprocess.Popen(["dwebp", file, "-o", fnpng], stdout=subprocess.PIPE)
                     output, err = conv.communicate()
                     rmfile = subprocess.Popen(["rm", file], stdout=subprocess.PIPE)
                     output2, err2 = rmfile.communicate()
-                    Label(root, text=file+" Some Webp conv output, Need to create function", width=50, anchor=W, justify=LEFT).pack()
+                    listbox.insert(END, file+" Some Webp conv output, Need to create function")
             else:
-                continue
                 #File is not Webp, Skipping
-    Label(root, text="Done Webp Conversion", width=50, anchor=W, justify=LEFT).pack()
+                continue
+    listbox.insert(END, "--------------Done Webp Conversion--------------")
 
 def colonrep():
     for rootdir, dirs, files in os.walk(en.get()):
@@ -132,37 +131,37 @@ def colonrep():
                 filechk = file.replace(":","_")
                 filechk2 = Path(filechk)
                 if filechk2.is_file():
-                    Label(root, text=file+": File already EXISTS, not overwriting: "+filechk2, width=50, anchor=W, justify=LEFT).pack()
+                    listbox.insert(END, file+": File already EXISTS, not overwriting: "+filechk2)
                 else:
                     # rename the file
                     shutil.move(file, file.replace(":","_"))
-                    Label(root, text=file+(" Colon => ")+file.replace(":","_"), width=50, anchor=W, justify=LEFT).pack()
+                    listbox.insert(END, file+(" Colon => ")+file.replace(":","_"))
             else:
                 #Colon not found in name
                 continue
-    Label(root, text="Done Colon Replace with Space", width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "--------------Done Colon Replace with Space--------------")
 
 def verify():
-    Label(root, text="Initial Count: "+str(leng), width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "Initial Count: "+str(leng))
     leng2 = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
-    Label(root, text="Final Count: "+str(leng2), width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "Final Count: "+str(leng2))
     if leng == leng2:
-        Label(root, text="Operation completed successfully", width=50, anchor=W, justify=LEFT).pack()
+        listbox.insert(END, "Operation completed successfully")
     else:
-        Label(root, text="Operation failed, some files missing, Restore from backup !!!", width=50, anchor=W, justify=LEFT).pack()
+        listbox.insert(END, "Operation failed, some files missing, Restore from backup !!!")
 
 def delete():
     try:
         shutil.rmtree("tmp")
-        Label(root, text="Backup Directory Deleted", width=50, anchor=W, justify=LEFT).pack()
+        listbox.insert(END, "Backup Directory Deleted")
     except:
-        Label(root, text="Backup not found", width=50, anchor=W, justify=LEFT).pack()
-        print("")
+        listbox.insert(END, "Backup not found")
 
 def duplicate():
-    Label(root, text="duplicate Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "duplicate Function Under Construction")
 def similar():
-    Label(root, text="similar Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "similar Function Under Construction")
+
 def stats():
     x = []
     for file in files(en.get()):
@@ -170,32 +169,44 @@ def stats():
         x.append(ext)
         count = Counter(x)
     for ext, count in count.most_common(10):
-        Label(root, text=("{0}: {1}".format(ext, count)), width=50, anchor=W, justify=LEFT).pack()
-    Label(root, text="Done Stats", width=50, anchor=W, justify=LEFT).pack()
+        listbox.insert(END, ("{0}: {1}".format(ext, count)))
+    listbox.insert(END, "Done Stats")
 
 def top():
-    Label(root, text="Top 10 Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
+    listbox.insert(END, "Top 10 Function Under Construction")
 
+def clear():
+    listbox.delete(0, END)
 
-Label(root, text="Renamer App", font=("Times", 35), width=20, anchor=W, justify=LEFT).pack()
+Label(root, text="Renamer App", font=("Times", 35), width=20, anchor=W, justify=LEFT).grid(row=0, columnspan=3)
 
 en = Entry(root, width=60)
-en.pack()
+en.grid(row=1, columnspan=3)
 en.focus_set()
 
-Button(root, text="Show Files", width=20, command=ls).pack()
-Button(root, text="Count of Files", width=20, command=count).pack()
-Button(root, text="Backup Files", width=20, command=backup).pack()
-Button(root, text="Missing Extensions", width=20, command=missing).pack()
-Button(root, text="Correct Extensions", width=20, command=correct).pack()
-Button(root, text="Webp Convert", width=20, command=webpconv).pack()
-Button(root, text="Replace Colon", width=20, command=colonrep).pack()
-Button(root, text="Verify Files", width=20, command=verify).pack()
-Button(root, text="Delete Backups", width=20, command=delete).pack()
-Button(root, text="Find Duplicate", width=20, command=duplicate).pack()
-Button(root, text="Find Similar Images", width=20, command=similar).pack()
-Button(root, text="Show Stats", width=20, command=stats).pack()
-Button(root, text="Top 10 Files", width=20, command=top).pack()
+Button(root, text="Show Files", width=20, command=ls).grid(row=2, column=0)
+Button(root, text="Count of Files", width=20, command=count).grid(row=3, column=0)
+Button(root, text="Backup Files", width=20, command=backup).grid(row=4, column=0)
+Button(root, text="Missing Extensions", width=20, command=missing).grid(row=5, column=0)
+Button(root, text="Correct Extensions", width=20, command=correct).grid(row=2, column=1)
+Button(root, text="Webp Convert", width=20, command=webpconv).grid(row=3, column=1)
+Button(root, text="Replace Colon", width=20, command=colonrep).grid(row=4, column=1)
+Button(root, text="Verify Files", width=20, command=verify).grid(row=5, column=1)
+Button(root, text="Delete Backups", width=20, command=delete).grid(row=2, column=2)
+Button(root, text="Find Duplicate", width=20, command=duplicate).grid(row=3, column=2)
+Button(root, text="Find Similar Images", width=20, command=similar).grid(row=4, column=2)
+Button(root, text="Show Stats", width=20, command=stats).grid(row=5, column=2)
+Button(root, text="Top 10 Files", width=20, command=top).grid(row=2, column=3)
+Button(root, text="Clear Log Output", width=20, command=clear).grid(row=3, column=3)
+Button(root, text="", width=20, command="").grid(row=4, column=3)
+Button(root, text="Exit", width=20, command="exit").grid(row=5, column=3)
 
-root.geometry("800x800")
+listbox = Listbox(root, height=30, width=140)
+listbox.xview_scroll(3, "pages")
+listbox.yview_scroll(3, "pages")
+listbox.grid(row=7, columnspan=6)
+
+listbox.insert(END, "Log Output: ")
+
+root.geometry("900x700")
 root.mainloop()
