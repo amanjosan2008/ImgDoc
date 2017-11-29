@@ -20,12 +20,17 @@ def ls():
         Label(root, text=file, width=50, anchor=W, justify=LEFT).pack()
 
 def count():
-        leng = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
-        Label(root, text="Count: "+str(leng), width=50, anchor=W, justify=LEFT).pack()
+    global leng
+    leng = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
+    Label(root, text="Count: "+str(leng), width=50, anchor=W, justify=LEFT).pack()
 
 def backup():
-    tar = tarfile.open("backup.tar.gz", "w:gz")
-    wr = open("file_list.txt", "w")
+    try:
+        os.mkdir("tmp")
+    except Exception:
+        pass
+    tar = tarfile.open(os.path.join("tmp/" + "backup.tar.gz"), "w:gz")
+    wr = open(os.path.join("tmp/" + "file_list.txt"), "w")
     wr.write("List of files:\n\n")
     for name in glob.glob(os.path.join(en.get(), '*')):
         wr.write(name + '\n')
@@ -138,9 +143,22 @@ def colonrep():
     Label(root, text="Done Colon Replace with Space", width=50, anchor=W, justify=LEFT).pack()
 
 def verify():
-    Label(root, text="verify Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
+    Label(root, text="Initial Count: "+str(leng), width=50, anchor=W, justify=LEFT).pack()
+    leng2 = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
+    Label(root, text="Final Count: "+str(leng2), width=50, anchor=W, justify=LEFT).pack()
+    if leng == leng2:
+        Label(root, text="Operation completed successfully", width=50, anchor=W, justify=LEFT).pack()
+    else:
+        Label(root, text="Operation failed, some files missing, Restore from backup !!!", width=50, anchor=W, justify=LEFT).pack()
+
 def delete():
-    Label(root, text="delete Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
+    try:
+        shutil.rmtree("tmp")
+        Label(root, text="Backup Directory Deleted", width=50, anchor=W, justify=LEFT).pack()
+    except:
+        Label(root, text="Backup not found", width=50, anchor=W, justify=LEFT).pack()
+        print("")
+
 def duplicate():
     Label(root, text="duplicate Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
 def similar():
@@ -155,6 +173,9 @@ def stats():
         Label(root, text=("{0}: {1}".format(ext, count)), width=50, anchor=W, justify=LEFT).pack()
     Label(root, text="Done Stats", width=50, anchor=W, justify=LEFT).pack()
 
+def top():
+    Label(root, text="Top 10 Function Under Construction", width=50, anchor=W, justify=LEFT).pack()
+
 
 Label(root, text="Renamer App", font=("Times", 35), width=20, anchor=W, justify=LEFT).pack()
 
@@ -162,8 +183,8 @@ en = Entry(root, width=60)
 en.pack()
 en.focus_set()
 
-Button(root, text="ls", width=20, command=ls).pack()
-Button(root, text="Count", width=20, command=count).pack()
+Button(root, text="Show Files", width=20, command=ls).pack()
+Button(root, text="Count of Files", width=20, command=count).pack()
 Button(root, text="Backup Files", width=20, command=backup).pack()
 Button(root, text="Missing Extensions", width=20, command=missing).pack()
 Button(root, text="Correct Extensions", width=20, command=correct).pack()
@@ -173,8 +194,8 @@ Button(root, text="Verify Files", width=20, command=verify).pack()
 Button(root, text="Delete Backups", width=20, command=delete).pack()
 Button(root, text="Find Duplicate", width=20, command=duplicate).pack()
 Button(root, text="Find Similar Images", width=20, command=similar).pack()
-Button(root, text="Stats", width=20, command=stats).pack()
-Button(root, text="Exit App", width=20, command="exit").pack()
+Button(root, text="Show Stats", width=20, command=stats).pack()
+Button(root, text="Top 10 Files", width=20, command=top).pack()
 
 root.geometry("800x800")
 root.mainloop()

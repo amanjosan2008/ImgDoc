@@ -1,11 +1,12 @@
 To Do List:
 
+# Do not Execute without any inputs
 # Append _(1) if existing file
 # Duplicate remover
 # Webp Conv failed > do not rm file
 # HAUceV0.jpg.jpg => not renamed when image not supported
 # use dwebp 1.webp -o - | convert - 1.jpg
 # Do not run command recursively
-# Backup at outside of Destination folder OR in "tmp" Dir
 # Use GRID GUI Manager
 # Check no of files before & after execution, Delete Archive if no of files is same, Else display error
+# Backup Fn non Recursive
