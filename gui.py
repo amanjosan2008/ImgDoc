@@ -7,6 +7,7 @@ import imghdr, shutil
 import subprocess
 from pathlib import Path
 from collections import Counter
+from PIL import Image
 
 root = Tk()
 
@@ -116,25 +117,31 @@ def correct():
 
 def webpconv():
     validate()
-    for rootdir, dirs, files in os.walk(en.get()):
-        for name in files:
-            file = rootdir + "/" + name
-
-            fn, ext = os.path.splitext(file)
-            if ext == ".webp":
-                fnpng = fn + ".png"
-                fpath = Path(fnpng)
-                if fpath.is_file():
-                    listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
-                else:
-                    conv = subprocess.Popen(["dwebp", file, "-o", fnpng], stdout=subprocess.PIPE)
-                    output, err = conv.communicate()
-                    rmfile = subprocess.Popen(["rm", file], stdout=subprocess.PIPE)
-                    output2, err2 = rmfile.communicate()
-                    listbox.insert(END, file+" Some Webp conv output, Need to create function")
+    for file in fullpath(en.get()):
+        name, ext = os.path.splitext(file)
+        if ext == ".webp":
+            fnpng = name + ".jpg"
+            fpath = Path(fnpng)
+            if fpath.is_file():
+                listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
             else:
-                #File is not Webp, Skipping
-                continue
+                try:
+                    im = Image.open(file).convert("RGB")
+                    im.save(name + ".jpg", "jpeg")
+                    if fpath.is_file():
+                        os.remove(file)
+                        listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
+                    else:
+                        listbox.insert(END, file+": Conversion to JPG failed")
+                except OSError as e:
+                    listbox.insert(END, file+": Exception occured: "+str(e))
+                    pass
+                except:
+                    listbox.insert(END, "Exception error occured when processing: "+file)
+                    pass
+        else:
+            #File is not Webp, Skipping
+            continue
     listbox.insert(END, "--------------Done Webp Conversion--------------")
 
 def colonrep():
@@ -218,7 +225,7 @@ Button(root, text="Find Similar Images", width=20, command=similar).grid(row=4, 
 Button(root, text="Show Stats", width=20, command=stats).grid(row=5, column=2)
 Button(root, text="Top 10 Files", width=20, command=top).grid(row=2, column=3)
 Button(root, text="Clear Log Output", width=20, command=clear).grid(row=3, column=3)
-Button(root, text="", width=20, command="").grid(row=4, column=3)
+Button(root, text="Huge PNG Convertor", width=20, command="hugepng").grid(row=4, column=3)
 Button(root, text="Exit", width=20, command="exit").grid(row=5, column=3)
 
 listbox = Listbox(root, height=30, width=140)
