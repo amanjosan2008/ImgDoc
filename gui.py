@@ -8,6 +8,7 @@ import subprocess
 from pathlib import Path
 from collections import Counter
 from PIL import Image
+from itertools import islice
 
 root = Tk()
 
@@ -16,10 +17,10 @@ def files():
         if os.path.isfile(os.path.join(en.get(), file)):
             yield file
 
-def fullpath(path):
-    for file in os.listdir(path):
-        if os.path.isfile(os.path.join(path, file)):
-            yield (os.path.join(path, file))
+def fullpath():
+    for file in os.listdir(en.get()):
+        if os.path.isfile(os.path.join(en.get(), file)):
+            yield (os.path.join(en.get(), file))
 
 def validate():
     if (en.get() == ""):
@@ -57,7 +58,7 @@ def backup():
 
 def missing():
     validate()
-    for file in fullpath(en.get()):
+    for file in fullpath():
             fn, ext = os.path.splitext(file)
             ftype = imghdr.what(file)
             if ftype == None:
@@ -77,7 +78,7 @@ def missing():
 
 def correct():
     validate()
-    for file in fullpath(en.get()):
+    for file in fullpath():
             # find the correct extension
             ftype = imghdr.what(file)
             ext = os.path.splitext(file)[1][1:]
@@ -117,7 +118,7 @@ def correct():
 
 def webpconv():
     validate()
-    for file in fullpath(en.get()):
+    for file in fullpath():
         name, ext = os.path.splitext(file)
         if ext == ".webp":
             fnpng = name + ".jpg"
@@ -146,7 +147,7 @@ def webpconv():
 
 def colonrep():
     validate()
-    for file in fullpath(en.get()):
+    for file in fullpath():
         if re.search(r':', file):
             filechk = file.replace(":","_")
             filechk2 = Path(filechk)
@@ -190,7 +191,7 @@ def stats():
     validate()
     listbox.insert(END, "Directory Stats are below:")
     x = []
-    for file in files(en.get()):
+    for file in files():
         ext = os.path.splitext(file)[1][1:]
         x.append(ext)
         count = Counter(x)
@@ -200,7 +201,21 @@ def stats():
 
 def top():
     validate()
-    listbox.insert(END, "Top 10 Function Under Construction")
+    x = {}
+    for file in fullpath():
+        filesize = (os.path.getsize(file))
+        sizeinmb = (filesize/1000000)
+        sizeflt = "{:.2f}".format(sizeinmb)
+        x.update({file: sizeflt})
+    for i in range(10):
+        key, value = max(x.items(), key = lambda p: p[1])
+        listbox.insert(END, key+" => "+value+"MB")
+        x.pop((max(x, key=x.get)))
+    listbox.insert(END, "--------------Done Top 10 Function--------------")
+
+def hugepng():
+    validate()
+    listbox.insert(END, "Huge PNG Function Under Construction")
 
 def clear():
     listbox.delete(0, END)
@@ -224,8 +239,8 @@ Button(root, text="Find Duplicate", width=20, command=duplicate).grid(row=3, col
 Button(root, text="Find Similar Images", width=20, command=similar).grid(row=4, column=2)
 Button(root, text="Show Stats", width=20, command=stats).grid(row=5, column=2)
 Button(root, text="Top 10 Files", width=20, command=top).grid(row=2, column=3)
+Button(root, text="Huge PNG Convertor", width=20, command=hugepng).grid(row=4, column=3)
 Button(root, text="Clear Log Output", width=20, command=clear).grid(row=3, column=3)
-Button(root, text="Huge PNG Convertor", width=20, command="hugepng").grid(row=4, column=3)
 Button(root, text="Exit", width=20, command="exit").grid(row=5, column=3)
 
 listbox = Listbox(root, height=30, width=140)
