@@ -10,21 +10,36 @@ from collections import Counter
 
 root = Tk()
 
-def files(path):
-    for file in os.listdir(path):
-        if os.path.isfile(os.path.join(path, file)):
+def files():
+    for file in os.listdir(en.get()):
+        if os.path.isfile(os.path.join(en.get(), file)):
             yield file
 
+def fullpath(path):
+    for file in os.listdir(path):
+        if os.path.isfile(os.path.join(path, file)):
+            yield (os.path.join(path, file))
+
+def validate():
+    if (en.get() == ""):
+        listbox.insert(END, "No Input Entered")
+        raise ValueError('empty string')
+    else:
+        return
+
 def ls():
-    for file in files(en.get()):
+    validate()
+    for file in files():
         listbox.insert(END, file)
 
 def count():
+    validate()
     global leng
     leng = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
     listbox.insert(END, "Count: "+str(leng))
 
 def backup():
+    validate()
     try:
         os.mkdir("tmp")
     except Exception:
@@ -32,7 +47,7 @@ def backup():
     tar = tarfile.open(os.path.join("tmp/" + "backup.tar.gz"), "w:gz")
     wr = open(os.path.join("tmp/" + "file_list.txt"), "w")
     wr.write("List of files:\n\n")
-    for name in glob.glob(os.path.join(en.get(), '*')):
+    for name in fullpath(en.get()):
         wr.write(name + '\n')
         tar.add(name)
     wr.close()
@@ -40,9 +55,8 @@ def backup():
     listbox.insert(END, "--------------Backup Done-----------------")
 
 def missing():
-    for rootdir, dirs, files in os.walk(en.get()):
-        for name in files:
-            file = rootdir +"/"+ name
+    validate()
+    for file in fullpath(en.get()):
             fn, ext = os.path.splitext(file)
             ftype = imghdr.what(file)
             if ftype == None:
@@ -61,9 +75,8 @@ def missing():
     listbox.insert(END, "--------------Done adding missing extensions--------------")
 
 def correct():
-    for rootdir, dirs, files in os.walk(en.get()):
-        for name in files:
-            file = rootdir+"/"+name
+    validate()
+    for file in fullpath(en.get()):
             # find the correct extension
             ftype = imghdr.what(file)
             ext = os.path.splitext(file)[1][1:]
@@ -78,7 +91,7 @@ def correct():
                             filechk = file.replace(ext,ftype)
                             filechk2 = Path(filechk)
                             if filechk2.is_file():
-                                listbox.insert(END, file+": File already EXISTS, not overwritting: "+filechk2)
+                                listbox.insert(END, file+": File already EXISTS, not overwritting: "+str(filechk2))
                             else:
                                 # rename the file
                                 shutil.move(file, file.replace(ext,ftype))
@@ -102,6 +115,7 @@ def correct():
     listbox.insert(END, "--------------Done correcting extensions--------------")
 
 def webpconv():
+    validate()
     for rootdir, dirs, files in os.walk(en.get()):
         for name in files:
             file = rootdir + "/" + name
@@ -124,24 +138,24 @@ def webpconv():
     listbox.insert(END, "--------------Done Webp Conversion--------------")
 
 def colonrep():
-    for rootdir, dirs, files in os.walk(en.get()):
-        for name in files:
-            file = rootdir + "/" + name
-            if re.search(r':', file):
-                filechk = file.replace(":","_")
-                filechk2 = Path(filechk)
-                if filechk2.is_file():
-                    listbox.insert(END, file+": File already EXISTS, not overwriting: "+filechk2)
-                else:
-                    # rename the file
-                    shutil.move(file, file.replace(":","_"))
-                    listbox.insert(END, file+(" Colon => ")+file.replace(":","_"))
+    validate()
+    for file in fullpath(en.get()):
+        if re.search(r':', file):
+            filechk = file.replace(":","_")
+            filechk2 = Path(filechk)
+            if filechk2.is_file():
+                listbox.insert(END, file+": File already EXISTS, not overwriting: "+filechk2)
             else:
-                #Colon not found in name
-                continue
+                # rename the file
+                shutil.move(file, file.replace(":","_"))
+                listbox.insert(END, file+(" Colon => ")+file.replace(":","_"))
+        else:
+            #Colon not found in name
+            continue
     listbox.insert(END, "--------------Done Colon Replace with Space--------------")
 
 def verify():
+    validate()
     listbox.insert(END, "Initial Count: "+str(leng))
     leng2 = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
     listbox.insert(END, "Final Count: "+str(leng2))
@@ -151,6 +165,7 @@ def verify():
         listbox.insert(END, "Operation failed, some files missing, Restore from backup !!!")
 
 def delete():
+    validate()
     try:
         shutil.rmtree("tmp")
         listbox.insert(END, "Backup Directory Deleted")
@@ -158,11 +173,15 @@ def delete():
         listbox.insert(END, "Backup not found")
 
 def duplicate():
+    validate()
     listbox.insert(END, "duplicate Function Under Construction")
 def similar():
+    validate()
     listbox.insert(END, "similar Function Under Construction")
 
 def stats():
+    validate()
+    listbox.insert(END, "Directory Stats are below:")
     x = []
     for file in files(en.get()):
         ext = os.path.splitext(file)[1][1:]
@@ -170,9 +189,10 @@ def stats():
         count = Counter(x)
     for ext, count in count.most_common(10):
         listbox.insert(END, ("{0}: {1}".format(ext, count)))
-    listbox.insert(END, "Done Stats")
+    listbox.insert(END, "--------------Done Stats--------------")
 
 def top():
+    validate()
     listbox.insert(END, "Top 10 Function Under Construction")
 
 def clear():
