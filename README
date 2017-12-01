@@ -8,6 +8,13 @@ To Do List:
 # Delete Archive if no of files is same, Else display error
 
 
-#Verify catch Exception; COunt button not pressed:
+# Verify catch Exception; Count button not pressed:
     NameError: name 'leng' is not defined
-#Top10 not working beyond 1 GB
+# Top10 not working beyond 1 GB
+-------------------------------------------------------------
+if os.path.exists(i):
+    Do Something
+else:
+    print('%s is not a valid path, please verify' % i)
+    sys.exit()
+-------------------------------------------------------------
