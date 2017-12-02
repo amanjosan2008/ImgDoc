@@ -2,11 +2,5 @@ To Do List:
 
 # Append _(1) if existing file
 # Similar images list
-# Duplicate images list
-# Top10 Function
 # HAUceV0.jpg.jpg => not renamed when image not supported
 # Delete Archive if no of files is same, Else display error
-
-# Verify catch Exception; Count button not pressed:
-    NameError: name 'leng' is not defined
-# Top10 not working beyond 1 GB

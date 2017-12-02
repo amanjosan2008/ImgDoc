@@ -50,7 +50,7 @@ def backup():
     tar = tarfile.open(os.path.join("tmp/" + "backup.tar.gz"), "w:gz")
     wr = open(os.path.join("tmp/" + "file_list.txt"), "w")
     wr.write("List of files:\n\n")
-    for name in fullpath(en.get()):
+    for name in fullpath():
         wr.write(name + '\n')
         tar.add(name)
     wr.close()
@@ -229,18 +229,52 @@ def top():
     x = {}
     for file in fullpath():
         filesize = (os.path.getsize(file))
-        sizeinmb = (filesize/1000000)
-        sizeflt = "{:.2f}".format(sizeinmb)
-        x.update({file: sizeflt})
-    for i in range(10):
+        x.update({file: filesize})
+    # Limit iterations to 10 or less in case lesser no of files
+    if (len(x) < 10):
+        a = len(x)
+    else:
+        a = 10
+    for i in range(a):
         key, value = max(x.items(), key = lambda p: p[1])
-        listbox.insert(END, key+" => "+value+"MB")
+        sizeinmb = (value/1000000)
+        sizeflt = "{:.2f}".format(sizeinmb)
+        listbox.insert(END, key+" => "+sizeflt+"MB")
         x.pop((max(x, key=x.get)))
     listbox.insert(END, "--------------Done Top 10 Function--------------")
 
 def hugepng():
     validate()
-    listbox.insert(END, "Huge PNG Function Under Construction")
+    x = {}
+    for file in fullpath():
+        filesize = (os.path.getsize(file))
+        name, ext = os.path.splitext(file)
+        # search huge PNG Files
+        if (ext == ".png") & (filesize > 1000000):
+            print (file, filesize)
+            fnpng = name + ".jpg"
+            fpath = Path(fnpng)
+            if fpath.is_file():
+                listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
+            else:
+                try:
+                    im = Image.open(file).convert("RGB")
+                    im.save(name + ".jpg", "jpeg")
+                    if fpath.is_file():
+                        os.remove(file)
+                        listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
+                    else:
+                        listbox.insert(END, file+": Conversion to JPG failed")
+                except OSError as e:
+                    listbox.insert(END, file+": Exception occured: "+str(e))
+                    pass
+                except:
+                    listbox.insert(END, "Exception error occured when processing: "+file)
+                    pass
+        else:
+            #File is not Huge PNG, Skipping
+            continue
+    listbox.insert(END, "--------------Done Webp Conversion--------------")
 
 def clear():
     listbox.delete(0, END)
