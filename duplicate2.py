@@ -2,6 +2,7 @@ import os
 import sys
 import itertools
 from hashlib import md5
+from itertools import chain
 
 dir = sys.argv[1]
 
@@ -12,8 +13,8 @@ def fullpath(path):
 
 def hashfile():
     #validate()
-    x = []
-    y = []
+    x = {}
+    y = {}
     #for file in fullpath(en.get()):
     for file in fullpath(dir):
         afile = open(file, 'rb')
@@ -24,26 +25,14 @@ def hashfile():
             buf = afile.read(65536)
         afile.close()
         hash = hasher.hexdigest()
-        x.append(file)
-        y.append(hash)
-
-    a = len(x)
-    b = len(x)-1
-    for i in range(a):
-        print(i, a, b)
-        if (i < b):
-            print("True")
-            print(y[i])
-            print(y[i+1])
-            if y[i] == y[i+1]:
-                print(i)
-                print(y[i])
-                print(x[i])
-        else:
-            print("False")
-
-
-    #for k,v in x.items():
-    #    print(k,v)
+        x.update({file: hash})
+    for key, value in x.items():
+        y.setdefault(value, set()).add(key)
+    z = [values for key, values in y.items() if len(values) > 1]
+    i = 1
+    for s in z:
+        print("Duplicate Set:",i)
+        i += 1
+        print ("\n".join(str(x) for x in s))
 
 hashfile()

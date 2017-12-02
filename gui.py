@@ -9,6 +9,7 @@ from pathlib import Path
 from collections import Counter
 from PIL import Image
 from itertools import islice
+from hashlib import md5
 
 root = Tk()
 
@@ -164,13 +165,16 @@ def colonrep():
 
 def verify():
     validate()
-    listbox.insert(END, "Initial Count: "+str(leng))
-    leng2 = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
-    listbox.insert(END, "Final Count: "+str(leng2))
-    if leng == leng2:
-        listbox.insert(END, "Operation completed successfully")
-    else:
-        listbox.insert(END, "Operation failed, some files missing, Restore from backup !!!")
+    try:
+        listbox.insert(END, "Initial Count: "+str(leng))
+        leng2 = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
+        listbox.insert(END, "Final Count: "+str(leng2))
+        if leng == leng2:
+            listbox.insert(END, "Operation completed successfully")
+        else:
+            listbox.insert(END, "Operation failed, some files missing, Restore from backup !!!")
+    except NameError:
+        listbox.insert(END, "Count function not used before operation, cannot use this feature now")
 
 def delete():
     validate()
@@ -182,7 +186,28 @@ def delete():
 
 def duplicate():
     validate()
-    listbox.insert(END, "duplicate Function Under Construction")
+    x = {}
+    for file in fullpath():
+        afile = open(file, 'rb')
+        hasher = md5()
+        buf = afile.read(65536)
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(65536)
+        afile.close()
+        hash = hasher.hexdigest()
+        x.update({file: hash})
+    y = {}
+    for key, value in x.items():
+        y.setdefault(value, set()).add(key)
+    z = [values for key, values in y.items() if len(values) > 1]
+    i = 1
+    for s in z:
+        listbox.insert(END, "Duplicate Set:"+str(i))
+        i += 1
+        listbox.insert(END, '  '.join(str(x) for x in s))
+    listbox.insert(END, "--------------Done Finding Duplicates--------------")
+
 def similar():
     validate()
     listbox.insert(END, "similar Function Under Construction")
