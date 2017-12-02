@@ -23,11 +23,11 @@ def fullpath():
             yield (os.path.join(en.get(), file))
 
 def validate():
-    if (en.get() == ""):
-        listbox.insert(END, "No Input Entered")
-        raise ValueError('empty string')
-    else:
+    if os.path.exists(en.get()):
         return
+    else:
+        listbox.insert(END, "Incorrect or No Path Entered")
+        raise ValueError('Incorrect or No Path Entered')
 
 def ls():
     validate()
