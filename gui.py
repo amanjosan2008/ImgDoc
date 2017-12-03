@@ -251,7 +251,6 @@ def hugepng():
         name, ext = os.path.splitext(file)
         # search huge PNG Files
         if (ext == ".png") & (filesize > 1000000):
-            print (file, filesize)
             fnpng = name + ".jpg"
             fpath = Path(fnpng)
             if fpath.is_file():
@@ -309,5 +308,5 @@ listbox.grid(row=7, columnspan=6)
 
 listbox.insert(END, "Log Output: ")
 
-root.geometry("900x700")
+root.geometry("1000x700")
 root.mainloop()
