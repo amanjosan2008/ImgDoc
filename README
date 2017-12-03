@@ -15,6 +15,8 @@ Show Stats
 Top 10 Files
 Huge PNG Convertor
 
+
+
 Required Libraries:
 
 
@@ -22,8 +24,13 @@ Required Libraries:
 
 To Do List:
 
+-  Taskbar Icon
+-  Header frame name
+-  Catch Validate Fn Exception, break fn if any error
 -  Append _(1) in name if existing file
 -  Similar images list
 -  Delete Archive if no of files is same, Else display error
 -  Show Changes only Checkbox
 -  Show size for PNG, Webp files before & after operation - HugePNG + webpconv Feature
+-  Warn Exisitng backup/Overwriting
+-  Remove other special characters ,
