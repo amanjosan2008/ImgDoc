@@ -37,11 +37,12 @@ def browse():
     en.delete(0,END)
     en.insert(0,dir)
 
-def checked():
+def write():
     if var.get():
-        listbox.insert(END, "Checked")
+        return True
     else:
-        listbox.insert(END, "Not Checked")
+        listbox.insert(END, "Write Access not enabled")
+        return False
 
 def ls():
     validate()
@@ -73,21 +74,22 @@ def backup():
 def missing():
     validate()
     for file in fullpath():
-            fn, ext = os.path.splitext(file)
-            ftype = imghdr.what(file)
-            if ftype == None:
-                listbox.insert(END, "Unsupported file")
-            else:
-                newname = file +"."+ ftype
-                if not ext:
-                    filechk = Path(newname)
-                    if filechk.is_file():
-                        listbox.insert(END, file+": File already EXISTS, not overwriting: "+str(filechk))
-                    else:
-                        shutil.move(file, newname)
-                        listbox.insert(END, file+": has no ext, Appending: "+ftype)
+        fn, ext = os.path.splitext(file)
+        ftype = imghdr.what(file)
+        if ftype == None:
+            listbox.insert(END, "Unsupported file")
+        else:
+            newname = file +"."+ ftype
+            if not ext:
+                filechk = Path(newname)
+                if filechk.is_file():
+                    listbox.insert(END, file+": File already EXISTS, not overwriting: "+str(filechk))
                 else:
-                    continue
+                    listbox.insert(END, file+": has no ext, Appending: "+ftype)
+                    if write():
+                        shutil.move(file, newname)
+            else:
+                continue
     listbox.insert(END, "--------------Done adding missing extensions--------------")
 
 def correct():
@@ -110,8 +112,9 @@ def correct():
                                 listbox.insert(END, file+": File already EXISTS, not overwritting: "+str(filechk2))
                             else:
                                 # rename the file
-                                shutil.move(file, file.replace(ext,ftype))
                                 listbox.insert(END, file+ext+("=>")+ftype)
+                                if write():
+                                    shutil.move(file, file.replace(ext,ftype))
                     else:
                         if ext == "png":
                             filechk = file.replace(ext,"jpg")
@@ -119,8 +122,9 @@ def correct():
                             if filechk2.is_file():
                                 listbox.insert(END, file+": File already EXISTS, not overwritting: "+filechk2)
                             else:
-                                shutil.move(file, file.replace(ext,"jpg"))
                                 listbox.insert(END, file+": File type not determined for PNG => "+file.replace(ext,"jpg"))
+                                if write():
+                                    shutil.move(file, file.replace(ext,"jpg"))
                         else:
                             listbox.insert(END, file+": Could not determine file type.")
                 else:
@@ -141,13 +145,17 @@ def webpconv():
                 listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
             else:
                 try:
-                    im = Image.open(file).convert("RGB")
-                    im.save(name + ".jpg", "jpeg")
-                    if fpath.is_file():
-                        os.remove(file)
-                        listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
+                    if write():
+                        im = Image.open(file).convert("RGB")
+                        im.save(name + ".jpg", "jpeg")
+                        if fpath.is_file():
+                            os.remove(file)
+                            listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
+                        else:
+                            listbox.insert(END, file+": Conversion to JPG failed")
                     else:
-                        listbox.insert(END, file+": Conversion to JPG failed")
+                        listbox.insert(END, file+" to be deleted and Converted file will be saved as: "+name+".jpg")
+
                 except OSError as e:
                     listbox.insert(END, file+": Exception occured: "+str(e))
                     pass
@@ -169,8 +177,9 @@ def colonrep():
                 listbox.insert(END, file+": File already EXISTS, not overwriting: "+filechk2)
             else:
                 # rename the file
-                shutil.move(file, file.replace(":","_"))
                 listbox.insert(END, file+(" Colon => ")+file.replace(":","_"))
+                if write():
+                    shutil.move(file, file.replace(":","_"))
         else:
             #Colon not found in name
             continue
@@ -270,13 +279,16 @@ def hugepng():
                 listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
             else:
                 try:
-                    im = Image.open(file).convert("RGB")
-                    im.save(name + ".jpg", "jpeg")
-                    if fpath.is_file():
-                        os.remove(file)
-                        listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
+                    if write():
+                        im = Image.open(file).convert("RGB")
+                        im.save(name + ".jpg", "jpeg")
+                        if fpath.is_file():
+                            os.remove(file)
+                            listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
+                        else:
+                            listbox.insert(END, file+": Conversion to JPG failed")
                     else:
-                        listbox.insert(END, file+": Conversion to JPG failed")
+                        listbox.insert(END, file+" to be deleted and Converted file to be saved as: "+name+".jpg")
                 except OSError as e:
                     listbox.insert(END, file+": Exception occured: "+str(e))
                     pass
@@ -291,7 +303,7 @@ def hugepng():
 def clear():
     listbox.delete(0, END)
 
-Label(root, text="File Extension Doctor", font=("Times", 35), width=20, anchor=W, justify=LEFT).grid(row=0, columnspan=3)
+Label(root, text="Extensions Doctor", font=("Times", 35), width=20).grid(row=0, columnspan=6)
 en = Entry(root, width=60)
 en.grid(row=1, column=0,columnspan=4)
 en.focus_set()
@@ -299,7 +311,7 @@ en.focus_set()
 Button(root, text="Browse", width=20, command=browse).grid(row=1, column=3)
 
 var = IntVar()
-c = Checkbutton(root, text="Delete", variable=var)
+c = Checkbutton(root, text="Write Access", variable=var)
 c.grid(row=1, column=4, rowspan=1, columnspan=1)
 
 root.grid_rowconfigure(2, minsize=20)
@@ -320,7 +332,6 @@ Button(root, text="Top 10 Files", width=20, command=top).grid(row=15, column=0)
 Button(root, text="Huge PNG Convertor", width=20, command=hugepng).grid(row=16, column=0)
 Button(root, text="Clear Log Output", width=20, command=clear).grid(row=17, column=0)
 Button(root, text="Exit", width=20, command=exit).grid(row=18, column=0)
-Button(root, text="Checked", width=20, command=checked).grid(row=19, column=0)
 
 root.grid_rowconfigure(7, minsize=20)
 root.grid_columnconfigure(1, minsize=10)
@@ -332,5 +343,7 @@ listbox.grid(row=3, column=2, rowspan=20, columnspan=6)
 
 listbox.insert(END, "Ready, Log Output: ")
 
-root.geometry("1100x700")
+root.geometry("1400x700")
+root.title("Extensions Doctor")
+root.wm_iconbitmap("@"+"s.xbm")
 root.mainloop()

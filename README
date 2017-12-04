@@ -23,12 +23,12 @@ Required Libraries:
 To Do List:
 
 - Taskbar Icon
-- Header frame name
+- If Ext == JPEG, rename to JPG
+- Listbox auto scroll
 - Catch Validate Fn Exception, break fn if any error
 - Append _(1) in name if existing file
 - Similar images list
 - Delete Archive if no of files is same, Else display error
-- Show Changes only Checkbox
 - Show size for PNG, Webp files before & after operation - HugePNG + webpconv Feature
 - Warn Existing backup/Overwriting
 - Remove other special characters , ! ? #

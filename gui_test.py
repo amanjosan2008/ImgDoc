@@ -14,16 +14,20 @@ def browse():
 def checked():
     if var.get():
         return True
-        print("True")
     else:
         return False
-        print("False")
 
 def ls():
     #validate()
-    while checked():
-        for file in files():
-            listbox.insert(END, file)
+    if checked():
+        print("Checked")
+
+
+#def ls():
+    #validate()
+#    while checked():
+#        for file in files():
+#            listbox.insert(END, file)
 
 Label(root, text="Renamer App", font=("Times", 35), width=20, anchor=W, justify=LEFT).grid(row=0, columnspan=3)
 
