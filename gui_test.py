@@ -14,8 +14,16 @@ def browse():
 def checked():
     if var.get():
         return True
+        print("True")
     else:
         return False
+        print("False")
+
+def ls():
+    #validate()
+    while checked():
+        for file in files():
+            listbox.insert(END, file)
 
 Label(root, text="Renamer App", font=("Times", 35), width=20, anchor=W, justify=LEFT).grid(row=0, columnspan=3)
 
@@ -31,7 +39,7 @@ c.grid(row=1, column=4, rowspan=1, columnspan=1)
 
 root.grid_rowconfigure(2, minsize=20)
 
-Button(root, text="Show Files", width=20, command="ls").grid(row=3, column=0)
+Button(root, text="Show Files", width=20, command=ls).grid(row=3, column=0)
 Button(root, text="Count of Files", width=20, command="count").grid(row=4, column=0)
 Button(root, text="Backup Files", width=20, command="backup").grid(row=5, column=0)
 Button(root, text="Missing Extensions", width=20, command="missing").grid(row=6, column=0)
