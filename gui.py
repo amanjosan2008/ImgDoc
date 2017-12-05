@@ -29,7 +29,7 @@ def filesize(file):
     size = os.path.getsize(file)
     sizeinmb = size/1000000
     sizeflt = "{:.2f}".format(sizeinmb)
-    print(sizeflt, "MB")
+    return sizeflt
 
 def validate():
     if os.path.exists(en.get()):
@@ -149,19 +149,19 @@ def webpconv():
                 fnpng = name + ".jpg"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
+                    listbox.insert(END, file+"("+filesize(file)+"MB)"+": File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+"MB)")
                 else:
                     try:
                         if write():
                             im = Image.open(file).convert("RGB")
-                            im.save(name + ".jpg", "jpeg")
+                            im.save(fnpng, "jpeg")
                             if fpath.is_file():
+                                listbox.insert(END, file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
                                 os.remove(file)
-                                listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
                             else:
                                 listbox.insert(END, file+": Conversion to JPG failed")
                         else:
-                            listbox.insert(END, file+" to be deleted and Converted file will be saved as: "+name+".jpg")
+                            listbox.insert(END, file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+name+".jpg")
 
                     except OSError as e:
                         listbox.insert(END, file+": Exception occured: "+str(e))
@@ -286,26 +286,26 @@ def hugepng():
     if validate():
         x = {}
         for file in fullpath():
-            filesize = (os.path.getsize(file))
+            filesz = (os.path.getsize(file))
             name, ext = os.path.splitext(file)
             # search huge PNG Files
-            if (ext == ".png") & (filesize > 1000000):
+            if (ext == ".png")|(ext == ".PNG") & (filesz > 1000000):
                 fnpng = name + ".jpg"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    listbox.insert(END, file+": File already EXISTS, not overwritting: "+fnpng)
+                    listbox.insert(END, file+"("+filesize(file)+"MB)"+ ": File already EXISTS, not overwritting: "+ fnpng+ "("+filesize(fnpng)+"MB)" )
                 else:
                     try:
                         if write():
                             im = Image.open(file).convert("RGB")
                             im.save(fnpng, "jpeg")
                             if fpath.is_file():
+                                listbox.insert(END, file+"("+filesize(file)+"MB)"+ " deleted and Converted file saved as: "+ fnpng+ "("+filesize(fnpng)+"MB)")
                                 os.remove(file)
-                                listbox.insert(END, file+" deleted and Converted file saved as: "+fnpng)
                             else:
                                 listbox.insert(END, file+": Conversion to JPG failed")
                         else:
-                            listbox.insert(END, file+" to be deleted and Converted file to be saved as: "+fnpng)
+                            listbox.insert(END, file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+fnpng)
                     except OSError as e:
                         listbox.insert(END, file+": Exception occured: "+str(e))
                         pass

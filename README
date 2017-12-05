@@ -26,10 +26,8 @@ To Do List:
 - If Ext == JPEG, rename to JPG
 - Listbox auto scroll
 - Append _(1) in name if existing file
-- Similar images list
-- Show size for JPG, Webp files before & after operation - webpconv Feature
 - Warn Existing backup/Overwriting
 - Remove other special characters , ! ? #
 - Recursively file browse Feature
 - Search images similar to a selected image
--
+- Similar Fn: OSError: cannot identify image file '/home/aman/Github/Renamer/README'

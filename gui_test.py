@@ -6,6 +6,16 @@ import os
 
 root = Tk()
 
+def files():
+    for file in os.listdir(en.get()):
+        if os.path.isfile(os.path.join(en.get(), file)):
+            yield file
+
+def fullpath():
+    for file in os.listdir(en.get()):
+        if os.path.isfile(os.path.join(en.get(), file)):
+            yield (os.path.join(en.get(), file))
+        
 def browse():
     currdir = os.getcwd()
     dir = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
