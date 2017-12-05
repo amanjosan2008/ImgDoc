@@ -24,6 +24,12 @@ def fullpath():
         if os.path.isfile(os.path.join(en.get(), file)):
             yield (os.path.join(en.get(), file))
 
+def filesize(file):
+    size = os.path.getsize(file)
+    sizeinmb = size/1000000
+    sizeflt = "{:.2f}".format(sizeinmb)
+    print(sizeflt, "MB")
+
 def validate():
     if os.path.exists(en.get()):
         return True
@@ -281,14 +287,14 @@ def hugepng():
                     try:
                         if write():
                             im = Image.open(file).convert("RGB")
-                            im.save(name + ".jpg", "jpeg")
+                            im.save(fnpng, "jpeg")
                             if fpath.is_file():
                                 os.remove(file)
-                                listbox.insert(END, file+" deleted and Converted file saved as: "+name+".jpg")
+                                listbox.insert(END, file+" deleted and Converted file saved as: "+fnpng)
                             else:
                                 listbox.insert(END, file+": Conversion to JPG failed")
                         else:
-                            listbox.insert(END, file+" to be deleted and Converted file to be saved as: "+name+".jpg")
+                            listbox.insert(END, file+" to be deleted and Converted file to be saved as: "+fnpng)
                     except OSError as e:
                         listbox.insert(END, file+": Exception occured: "+str(e))
                         pass
@@ -345,5 +351,5 @@ listbox.insert(END, "Ready, Log Output: ")
 
 root.geometry("1400x700")
 root.title("Extensions Doctor")
-root.wm_iconbitmap("@"+"s.xbm")
+root.wm_iconbitmap("@"+"icon.xbm")
 root.mainloop()

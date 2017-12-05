@@ -27,7 +27,7 @@ To Do List:
 - Listbox auto scroll
 - Append _(1) in name if existing file
 - Similar images list
-- Delete Archive if no of files is same, Else display error
-- Show size for PNG, Webp files before & after operation - HugePNG + webpconv Feature
+- Show size for JPG, Webp files before & after operation - webpconv Feature
 - Warn Existing backup/Overwriting
 - Remove other special characters , ! ? #
+- Update PNG Size related code in gui.py from png_conv.py
