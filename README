@@ -30,4 +30,6 @@ To Do List:
 - Show size for JPG, Webp files before & after operation - webpconv Feature
 - Warn Existing backup/Overwriting
 - Remove other special characters , ! ? #
-- Update PNG Size related code in gui.py from png_conv.py
+- Recursively file browse Feature
+- Search images similar to a selected image
+-

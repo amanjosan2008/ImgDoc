@@ -41,6 +41,10 @@ var = IntVar()
 c = Checkbutton(root, text="Delete", variable=var)
 c.grid(row=1, column=4, rowspan=1, columnspan=1)
 
+var2 = IntVar()
+d = Checkbutton(root, text="Recursive", variable=var2)
+d.grid(row=1, column=5, rowspan=1, columnspan=1)
+
 root.grid_rowconfigure(2, minsize=20)
 
 Button(root, text="Show Files", width=20, command=ls).grid(row=3, column=0)
@@ -71,5 +75,5 @@ listbox.grid(row=3, column=2, rowspan=20, columnspan=6)
 
 listbox.insert(END, "Log Output: ")
 
-root.geometry("1000x700")
+root.geometry("1200x700")
 root.mainloop()

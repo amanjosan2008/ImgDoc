@@ -11,6 +11,7 @@ from collections import Counter
 from PIL import Image
 from itertools import islice
 from hashlib import md5
+import imagehash
 
 root = Tk()
 
@@ -238,7 +239,17 @@ def duplicate():
 
 def similar():
     if validate():
-        listbox.insert(END, "similar Function Under Construction")
+        x = []
+        y = []
+        for file in fullpath():
+            hash = imagehash.whash(Image.open(file))
+            x.append(file)
+            y.append(hash)
+        for i in range(len(x)):
+            for j in range(i+1, len(x)):
+                if y[i]-y[j] < 8:
+                    listbox.insert(END, "Dupes: "+ x[i]+"  "+ x[j]+ " Factor: "+str(y[i]-y[j]))
+        listbox.insert(END, "--------------Done Finding Similar Images--------------")
 
 def stats():
     if validate():
