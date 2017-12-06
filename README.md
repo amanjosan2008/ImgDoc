@@ -1,11 +1,7 @@
 I have created this tool to make life easy when managing huge collection of images downloaded from Internet.
 
-<<<<<<< HEAD
-<src="main.png">
-=======
-![](File-Extension-Doctor/images/main.png)
+![](main.png)
 
->>>>>>> e094f8f67ebf4ab0085a967ad0856ecfb3f30b24
 
 Features:
 
