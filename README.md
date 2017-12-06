@@ -1,6 +1,6 @@
 I have created this tool to make life easy when managing huge collection of images downloaded from Internet.
 
-<src="images/main.png">
+<src="main.png">
 
 Features:
 
