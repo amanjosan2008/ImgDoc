@@ -1,3 +1,5 @@
+I have created this tool to make life easy when managing huge collection of images downloaded from Internet.
+
 Features:
 
 - Count of Files
@@ -15,12 +17,26 @@ Features:
 - Huge PNG Convertor
 
 
-Required Libraries:
+Requirements:
+- Python3
+- Tkinter
+- Sys
+- Glob
+- OS
+- RE
+- Tarfile
+- Imghdr
+- Shutil
+- Subprocess
+- Pathlib
+- Collections
+- PIL
+- Itertools
+- Hashlib
+- Imagehash
 
 
-
-
-To Do List:
+Pending Tasks:
 
 - Taskbar Icon
 - If Ext == JPEG, rename to JPG
