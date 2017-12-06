@@ -1,6 +1,6 @@
 I have created this tool to make life easy when managing huge collection of images downloaded from Internet.
 
-[alt text](https://raw.githubusercontent.com/amanjosan2008/File-Extension-Doctor/master/images/main.png)
+![](File-Extension-Doctor/images/main.png)
 
 
 Features:
