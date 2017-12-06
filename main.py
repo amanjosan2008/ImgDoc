@@ -361,6 +361,6 @@ listbox.grid(row=3, column=2, rowspan=20, columnspan=6)
 listbox.insert(END, "Ready, Log Output: ")
 
 root.geometry("1400x700")
-root.title("Extensions Doctor")
-root.wm_iconbitmap("@"+"icon.xbm")
+root.title("File Extensions Doctor")
+root.wm_iconbitmap("@"+"images/icon.xbm")
 root.mainloop()
