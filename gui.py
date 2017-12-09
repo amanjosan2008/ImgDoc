@@ -16,14 +16,24 @@ import imagehash
 root = Tk()
 
 def files():
-    for file in os.listdir(en.get()):
-        if os.path.isfile(os.path.join(en.get(), file)):
-            yield file
+    if var2.get():
+        for root,dir,fname in os.walk(en.get()):
+            for file in fname:
+                yield file
+    else:
+        for file in os.listdir(en.get()):
+            if os.path.isfile(os.path.join(en.get(), file)):
+                yield file
 
 def fullpath():
-    for file in os.listdir(en.get()):
-        if os.path.isfile(os.path.join(en.get(), file)):
-            yield (os.path.join(en.get(), file))
+    if var2.get():
+        for root,dir,fname in os.walk(en.get()):
+            for file in fname:
+                yield (os.path.join(root, file))
+    else:
+        for file in os.listdir(en.get()):
+            if os.path.isfile(os.path.join(en.get(), file)):
+                yield (os.path.join(en.get(), file))
 
 def filesize(file):
     size = os.path.getsize(file)
@@ -330,6 +340,10 @@ Button(root, text="Browse", width=20, command=browse).grid(row=1, column=3)
 var = IntVar()
 c = Checkbutton(root, text="Write Access", variable=var)
 c.grid(row=1, column=4, rowspan=1, columnspan=1)
+
+var2 = IntVar()
+d = Checkbutton(root, text="Recursive", variable=var2)
+d.grid(row=1, column=5, rowspan=1, columnspan=1)
 
 root.grid_rowconfigure(2, minsize=20)
 

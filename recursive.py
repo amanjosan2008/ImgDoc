@@ -6,16 +6,32 @@ import os
 
 root = Tk()
 
+
+
 def files():
-    for file in os.listdir(en.get()):
-        if os.path.isfile(os.path.join(en.get(), file)):
-            yield file
+    if var2.get():
+        listbox.insert(END, "Recursive enabled")
+        for root,dir,fname in os.walk(en.get()):
+            for file in fname:
+                yield file
+    else:
+        listbox.insert(END, "Recursive not enabled")
+        for file in os.listdir(en.get()):
+            if os.path.isfile(os.path.join(en.get(), file)):
+                yield file
 
 def fullpath():
-    for file in os.listdir(en.get()):
-        if os.path.isfile(os.path.join(en.get(), file)):
-            yield (os.path.join(en.get(), file))
-        
+    if var2.get():
+        listbox.insert(END, "Recursive enabled")
+        for root,dir,fname in os.walk(en.get()):
+            for file in fname:
+                yield (os.path.join(en.get(), file))
+    else:
+        listbox.insert(END, "Recursive not enabled")
+        for file in os.listdir(en.get()):
+            if os.path.isfile(os.path.join(en.get(), file)):
+                yield (os.path.join(en.get(), file))
+
 def browse():
     currdir = os.getcwd()
     dir = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
@@ -28,16 +44,9 @@ def checked():
         return False
 
 def ls():
-    #validate()
-    if checked():
-        print("Checked")
+    for file in files():
+        listbox.insert(END, file)
 
-
-#def ls():
-    #validate()
-#    while checked():
-#        for file in files():
-#            listbox.insert(END, file)
 
 Label(root, text="Renamer App", font=("Times", 35), width=20, anchor=W, justify=LEFT).grid(row=0, columnspan=3)
 
