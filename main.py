@@ -376,5 +376,5 @@ listbox.insert(END, "Ready, Log Output: ")
 
 root.geometry("1400x700")
 root.title("File Extensions Doctor")
-root.wm_iconbitmap("@"+"images/icon.xbm")
+root.wm_iconbitmap("@"+"icon.xbm")
 root.mainloop()

@@ -52,4 +52,4 @@ Pending Tasks:
 - Similar Fn: OSError: cannot identify image file '/home/aman/Github/Renamer/README'
 - recursion ON - Top 10 not working
 - Use Fullpaths functions for all functions
-- COunt of FIles, Verify Files use Fullpath Function
+- Count of FIles, Verify Files use Fullpath Function
