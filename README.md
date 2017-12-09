@@ -45,8 +45,10 @@ Pending Tasks:
 - Taskbar Icon
 - If Ext == JPEG, rename to JPG
 - Listbox auto scroll
-- Append _(1) in name if existing file
+- Append (1) in name if existing file
 - Warn Existing backup/Overwriting
 - Remove other special characters , ! ? #
 - Search images similar to a selected image
 - Similar Fn: OSError: cannot identify image file '/home/aman/Github/Renamer/README'
+- Duplicate Fn use Array instead of dictionary
+- Stats Fn use Array instead of dictionary
