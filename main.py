@@ -15,16 +15,6 @@ import imagehash
 
 root = Tk()
 
-def files():
-    if var2.get():
-        for root,dir,fname in os.walk(en.get()):
-            for file in fname:
-                yield file
-    else:
-        for file in os.listdir(en.get()):
-            if os.path.isfile(os.path.join(en.get(), file)):
-                yield file
-
 def fullpath():
     if var2.get():
         for root,dir,fname in os.walk(en.get()):
@@ -63,13 +53,17 @@ def write():
 
 def ls():
     if validate():
-        for file in files():
-            listbox.insert(END, file)
+        for file in fullpath():
+            name = os.path.relpath(file, en.get())
+            listbox.insert(END, name)
 
 def count():
     if validate():
         global leng
-        leng = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
+        x = []
+        for file in fullpath():
+            x.append(file)
+        leng = len(x)
         listbox.insert(END, "Count: "+str(leng))
 
 def backup():
@@ -206,7 +200,10 @@ def verify():
     if validate():
         try:
             listbox.insert(END, "Initial Count: "+str(leng))
-            leng2 = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
+            x = []
+            for file in fullpath():
+                x.append(file)
+            leng2 = len(x)
             listbox.insert(END, "Final Count: "+str(leng2))
             if leng == leng2:
                 listbox.insert(END, "Operation completed successfully")
@@ -265,7 +262,7 @@ def stats():
     if validate():
         listbox.insert(END, "Directory Stats are below:")
         x = []
-        for file in files():
+        for file in fullpath():
             ext = os.path.splitext(file)[1][1:]
             x.append(ext)
             count = Counter(x)
@@ -278,7 +275,8 @@ def top():
         x = {}
         for file in fullpath():
             filesize = (os.path.getsize(file))
-            x.update({file: filesize})
+            relfile = os.path.relpath(file, en.get())
+            x.update({relfile: filesize})
         # Limit iterations to 10 or less in case lesser no of files
         if (len(x) < 10):
             a = len(x)
