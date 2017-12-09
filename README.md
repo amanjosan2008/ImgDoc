@@ -1,4 +1,8 @@
 I have created this tool to make life easy when managing huge collection of images downloaded from Internet.
+This application will work in both Linux & Windows under Python 3 environment.
+
+![](main.png)
+
 
 Features:
 
