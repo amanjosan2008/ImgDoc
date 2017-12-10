@@ -222,7 +222,7 @@ def delete():
 
 def duplicate():
     if validate():
-        x = {}
+        x,y = [],[]
         for file in fullpath():
             afile = open(file, 'rb')
             hasher = md5()
@@ -232,16 +232,23 @@ def duplicate():
                 buf = afile.read(65536)
             afile.close()
             hash = hasher.hexdigest()
-            x.update({file: hash})
-        y = {}
-        for key, value in x.items():
-            y.setdefault(value, set()).add(key)
-        z = [values for key, values in y.items() if len(values) > 1]
-        i = 1
-        for s in z:
-            listbox.insert(END, "Duplicate Set:"+str(i))
-            i += 1
-            listbox.insert(END, '  '.join(str(x) for x in s))
+            x.append(hash)
+            y.append(file)
+        a = len(x)
+        b = 1
+        for i in range(a):
+            for j in range(i+1, a):
+                if x[i] == x[j]:
+                    listbox.insert(END, "Duplicate Set"+str(b)+":")
+                    listbox.insert(END, y[i], y[j])
+                    b += 1
+                    if write():
+                        try:
+                            os.remove(y[j])
+                            listbox.insert(END, "Duplicate file deleted: "+y[j])
+                        except FileNotFoundError:
+                            listbox.insert(END, "File already deleted: "+y[j])
+                            pass
         listbox.insert(END, "--------------Done Finding Duplicates--------------")
 
 def similar():
@@ -356,7 +363,7 @@ Button(root, text="Webp Convert", width=20, command=webpconv).grid(row=8, column
 Button(root, text="Replace Colon", width=20, command=colonrep).grid(row=9, column=0)
 Button(root, text="Verify Files", width=20, command=verify).grid(row=10, column=0)
 Button(root, text="Delete Backups", width=20, command=delete).grid(row=11, column=0)
-Button(root, text="Find Duplicate", width=20, command=duplicate).grid(row=12, column=0)
+Button(root, text="Delete Duplicate", width=20, command=duplicate).grid(row=12, column=0)
 Button(root, text="Find Similar Images", width=20, command=similar).grid(row=13, column=0)
 Button(root, text="Show Stats", width=20, command=stats).grid(row=14, column=0)
 Button(root, text="Top 10 Files", width=20, command=top).grid(row=15, column=0)
@@ -376,5 +383,7 @@ listbox.insert(END, "Ready, Log Output: ")
 
 root.geometry("1400x700")
 root.title("File Extensions Doctor")
-root.wm_iconbitmap("@"+"icon.xbm")
+
+img = PhotoImage(file='icon.png')
+root.tk.call('wm', 'iconphoto', root._w, img)
 root.mainloop()
