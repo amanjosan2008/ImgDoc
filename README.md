@@ -53,3 +53,4 @@ Pending Tasks:
 - Duplicate delete
 - Audio alert after long operation/Status bar red icon when Busy
 - New app for image search, delete dup, delete similar
+- Stats fn - Sort results
