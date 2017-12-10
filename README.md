@@ -49,6 +49,9 @@ Pending Tasks:
 - Warn Existing backup/Overwriting
 - Remove other special characters , ! ? #
 - Search images similar to a selected image
-- Similar Fn: OSError: cannot identify image file '/home/aman/Github/Renamer/README'
 - Duplicate Fn use Array instead of dictionary
 - Stats Fn use Array instead of dictionary
+- duplicate delete
+- Tray icon in file
+- Audio alert after long operation/Status bar red icon when Busy
+- New app for image search, delete dup, delete similar
