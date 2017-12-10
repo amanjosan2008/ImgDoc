@@ -7,7 +7,7 @@ import tarfile
 import imghdr, shutil
 import subprocess
 from pathlib import Path
-from collections import Counter
+#from collections import Counter
 from PIL import Image
 from itertools import islice
 from hashlib import md5
@@ -246,8 +246,7 @@ def duplicate():
 
 def similar():
     if validate():
-        x = []
-        y = []
+        x,y = [],[]
         for file in fullpath():
             try:
                 hash = imagehash.whash(Image.open(file))
@@ -261,17 +260,16 @@ def similar():
                 pass
         listbox.insert(END, "--------------Done Finding Similar Images--------------")
 
-
 def stats():
     if validate():
         listbox.insert(END, "Directory Stats are below:")
         x = []
         for file in fullpath():
-            ext = os.path.splitext(file)[1][1:]
-            x.append(ext)
-            count = Counter(x)
-        for ext, count in count.most_common(10):
-            listbox.insert(END, ("{0}: {1}".format(ext, count)))
+                ext = os.path.splitext(file)[1][1:]
+                x.append(ext)
+        y = set(x)
+        for i in y:
+            listbox.insert(END, i+" : "+str(x.count(i)))
         listbox.insert(END, "--------------Done Stats--------------")
 
 def top():

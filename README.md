@@ -42,7 +42,7 @@ Requirements:
 
 Pending Tasks:
 
-- Taskbar Icon
+- Taskbar Icon in file
 - If Ext == JPEG, rename to JPG
 - Listbox auto scroll
 - Append (1) in name if existing file
@@ -50,8 +50,6 @@ Pending Tasks:
 - Remove other special characters , ! ? #
 - Search images similar to a selected image
 - Duplicate Fn use Array instead of dictionary
-- Stats Fn use Array instead of dictionary
-- duplicate delete
-- Tray icon in file
+- Duplicate delete
 - Audio alert after long operation/Status bar red icon when Busy
 - New app for image search, delete dup, delete similar
