@@ -13,7 +13,8 @@ def filesize(file):
     size = os.path.getsize(file)
     sizeinmb = size/1000000
     sizeflt = "{:.2f}".format(sizeinmb)
-    return sizeflt
+    #return sizeflt
+    return size
 
 x,y = [],[]
 for file in fullpath():
@@ -22,12 +23,21 @@ for file in fullpath():
         x.append(filesize(file))
         y.append(relfile)
 
-for i in range(len(x)):
-    for j in range(i+1, len(x)):
-        if x[i] > x[j]:
-            print(x[i], y[i])
+if (len(x) < 10):
+    c = len(x)
+else:
+    c = 10
 
-print(len(x))
+for i in range(len(x)):
+    a = 0
+    for i in range(len(x)):
+        if x[i] > a:
+            a = x[i]
+            b = i
+    print(y[b], x[b])
+    x.remove(x[b])
+    y.remove(y[b])
+
 
         # Limit iterations to 10 or less in case lesser no of files
         #if (len(x) < 10):
