@@ -42,6 +42,6 @@ for i in range(a):
                 print("File already deleted: ", y[j])
                 pass
             #else:
-                #listbox.insert(END, file+"("+filesize(file)+"MB)"+" WILL BE deleted")
+                #listbox.insert(END, file+"("+filesize(file)+"MB)"+" WILL BE deleted"
 
 #listbox.insert(END, "Duplicate Set:"+str(i))

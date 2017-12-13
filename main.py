@@ -9,6 +9,7 @@ import subprocess
 from pathlib import Path
 #from collections import Counter
 from PIL import Image
+import PIL
 from itertools import islice
 from hashlib import md5
 import imagehash
@@ -267,6 +268,22 @@ def similar():
                 pass
         listbox.insert(END, "--------------Done Finding Similar Images--------------")
 
+def search():
+    if validate():
+        currdir = os.getcwd()
+        img = filedialog.askopenfilename(parent=root, initialdir=currdir, title='Please select an image')
+        hash1 = imagehash.whash(PIL.Image.open(img))
+        x,y = [],[]
+        for file in fullpath():
+            hash = imagehash.whash(PIL.Image.open(file))
+            x.append(file)
+            y.append(hash)
+        for i in range(len(x)):
+            if not (img == x[i]):
+                if y[i]-hash1 < 8:
+                    listbox.insert(END, x[i]+" Factor: "+str(y[i]-hash1))
+        listbox.insert(END, "--------------Done Similar Function--------------")
+
 def stats():
     if validate():
         listbox.insert(END, "Directory Stats are below:")
@@ -365,11 +382,12 @@ Button(root, text="Verify Files", width=20, command=verify).grid(row=10, column=
 Button(root, text="Delete Backups", width=20, command=delete).grid(row=11, column=0)
 Button(root, text="Delete Duplicate", width=20, command=duplicate).grid(row=12, column=0)
 Button(root, text="Find Similar Images", width=20, command=similar).grid(row=13, column=0)
-Button(root, text="Show Stats", width=20, command=stats).grid(row=14, column=0)
-Button(root, text="Top 10 Files", width=20, command=top).grid(row=15, column=0)
-Button(root, text="Huge PNG Convertor", width=20, command=hugepng).grid(row=16, column=0)
-Button(root, text="Clear Log Output", width=20, command=clear).grid(row=17, column=0)
-Button(root, text="Exit", width=20, command=exit).grid(row=18, column=0)
+Button(root, text="Image Search", width=20, command=search).grid(row=14, column=0)
+Button(root, text="Show Stats", width=20, command=stats).grid(row=15, column=0)
+Button(root, text="Top 10 Files", width=20, command=top).grid(row=16, column=0)
+Button(root, text="Huge PNG Convertor", width=20, command=hugepng).grid(row=17, column=0)
+Button(root, text="Clear Log Output", width=20, command=clear).grid(row=18, column=0)
+Button(root, text="Exit", width=20, command=exit).grid(row=19, column=0)
 
 root.grid_rowconfigure(7, minsize=20)
 root.grid_columnconfigure(1, minsize=10)
