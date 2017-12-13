@@ -48,7 +48,6 @@ Pending Tasks:
 - Append (1) in name if existing file
 - Warn Existing backup/Overwriting
 - Remove other special characters , ! ? #
-- Search images similar to a selected image
 - Audio alert after long operation/Status bar red icon when Busy
 - Stats fn - Sort results
 - Search function difference: if not (img == x[i]) Windows only:

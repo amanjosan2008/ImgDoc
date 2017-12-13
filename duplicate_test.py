@@ -1,6 +1,7 @@
 # Delete 3 files without error
 import os
 from hashlib import md5
+import collections
 
 #dir = "D:\Files\Claims\Mediassit\Claim 2"
 dir = "/home/aman/Desktop/test"
@@ -23,24 +24,29 @@ for root,dir,fname in os.walk(dir):
             buf = afile.read(65536)
         afile.close()
         hash = hasher.hexdigest()
-        x.append(hash)
-        y.append(file)
-a = len(x)
-b = 1
-for i in range(a):
-    for j in range(i+1, a):
-        if x[i] == x[j]:
-            print("Duplicate Set", b,":")
-            print(y[i])
-            print(y[j])
-            b += 1
+        y.append(hash)
+        x.append(file)
+
+
+a = 1
+b = [item for item, count in collections.Counter(y).items() if count > 1]
+
+for i in range(len(b)):
+    print("Duplicate Set", a)
+    a += 1
+    c = 0
+    for j in range(len(y)):
+        if b[i] == y[j]:
             #if write():
             try:
-                #listbox.insert(END, file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
-                os.remove(y[j])
-                print("Deleted duplicate file: ", y[j])
+                if c == 0:
+                    c += 1
+                else:
+                    #listbox.insert(END, file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
+                    os.remove(x[j])
+                    print("Deleted duplicate file: ", x[j])
             except FileNotFoundError:
-                print("File already deleted: ", y[j])
+                print("File already deleted: ", x[j])
                 pass
             #else:
                 #listbox.insert(END, file+"("+filesize(file)+"MB)"+" WILL BE deleted"
