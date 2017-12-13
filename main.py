@@ -235,10 +235,9 @@ def duplicate():
             hash = hasher.hexdigest()
             x.append(hash)
             y.append(file)
-        a = len(x)
         b = 1
-        for i in range(a):
-            for j in range(i+1, a):
+        for i in range(len(x)):
+            for j in range(i+1, len(x)):
                 if x[i] == x[j]:
                     listbox.insert(END, "Duplicate Set"+str(b)+":")
                     listbox.insert(END, y[i], y[j])

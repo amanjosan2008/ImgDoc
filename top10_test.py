@@ -2,7 +2,7 @@
 
 import os
 
-dir = "/home/aman/Desktop/test"
+dir = "D:\Files\Claims\Mediassit\Test"
 
 def fullpath():
         for root,dire,fname in os.walk(dir):
