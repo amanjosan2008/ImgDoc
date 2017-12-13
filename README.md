@@ -51,7 +51,7 @@ Pending Tasks:
 - Search images similar to a selected image
 - Audio alert after long operation/Status bar red icon when Busy
 - Stats fn - Sort results
-- Search function difference: if not (img == x[i]):
+- Search function difference: if not (img == x[i]) Windows only:
     D:/Files/Claims/Mediassit/Test/SmokyMountainCabinsWithViewsLarge.jpeg
     D:/Files/Claims/Mediassit/Test\SmokyMountainCabinsWithViewsLarge.jpeg
-- Similar, Duplicate Fn apply 3rd Array logic
+- Duplicate Fn apply 3rd Array logic

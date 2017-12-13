@@ -2,7 +2,8 @@
 import os
 from hashlib import md5
 
-dir = "D:\Files\Claims\Mediassit\Claim 2"
+#dir = "D:\Files\Claims\Mediassit\Claim 2"
+dir = "/home/aman/Desktop/test"
 
 def filesize(file):
     size = os.path.getsize(file)

@@ -7,7 +7,7 @@ import tarfile
 import imghdr, shutil
 import subprocess
 from pathlib import Path
-#from collections import Counter
+import collections
 from PIL import Image
 import PIL
 from itertools import islice
@@ -259,12 +259,16 @@ def similar():
                 hash = imagehash.whash(Image.open(file))
                 x.append(file)
                 y.append(hash)
-                for i in range(len(x)):
-                    for j in range(i+1, len(x)):
-                        if y[i]-y[j] < 8:
-                            listbox.insert(END, "Dupes: "+ x[i]+"  "+ x[j]+ " Factor: "+str(y[i]-y[j]))
             except OSError:
                 pass
+        a = 1
+        b = [item for item, count in collections.Counter(y).items() if count > 1]
+        for i in range(len(b)):
+            listbox.insert(END, "Duplicate set:"+ str(a))
+            a += 1
+            for j in range(len(y)):
+                if b[i]-y[j] < 8:
+                    listbox.insert(END, x[j]+ " Factor:"+ str(b[i]-y[j]))
         listbox.insert(END, "--------------Done Finding Similar Images--------------")
 
 def search():
