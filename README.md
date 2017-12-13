@@ -50,5 +50,4 @@ Pending Tasks:
 - Remove other special characters , ! ? #
 - Search images similar to a selected image
 - Audio alert after long operation/Status bar red icon when Busy
-- New app for image search, delete dup, delete similar
 - Stats fn - Sort results
