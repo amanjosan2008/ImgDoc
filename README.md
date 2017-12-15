@@ -53,4 +53,3 @@ Pending Tasks:
 - Search function difference: if not (img == x[i]) Windows only:
     D:/Files/Claims/Mediassit/Test/SmokyMountainCabinsWithViewsLarge.jpeg
     D:/Files/Claims/Mediassit/Test\SmokyMountainCabinsWithViewsLarge.jpeg
-- Duplicate Fn apply 3rd Array logic

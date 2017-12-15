@@ -233,27 +233,30 @@ def duplicate():
                 buf = afile.read(65536)
             afile.close()
             hash = hasher.hexdigest()
-            x.append(hash)
-            y.append(file)
-        b = 1
-        for i in range(len(x)):
-            for j in range(i+1, len(x)):
-                if x[i] == x[j]:
-                    listbox.insert(END, "Duplicate Set"+str(b)+":")
-                    listbox.insert(END, y[i], y[j])
-                    b += 1
-                    if write():
-                        try:
-                            os.remove(y[j])
-                            listbox.insert(END, "Duplicate file deleted: "+y[j])
-                        except FileNotFoundError:
-                            listbox.insert(END, "File already deleted: "+y[j])
-                            pass
+            y.append(hash)
+            x.append(file)
+        a = 1
+        b = [item for item, count in collections.Counter(y).items() if count > 1]
+        for i in range(len(b)):
+            listbox.insert(END, "Duplicate Set: "+ str(a))
+            a += 1
+            c = 0
+            for j in range(len(y)):
+                if b[i] == y[j]:
+                    if c == 0:
+                        listbox.insert(END, "Original File: "+ x[j])
+                        c += 1
+                    else:
+                        if write():
+                            os.remove(x[j])
+                            listbox.insert(END, "Deleted duplicate file: "+ x[j])
+                        else:
+                            listbox.insert(END, x[j]+" WILL BE deleted")
         listbox.insert(END, "--------------Done Finding Duplicates--------------")
 
 def similar():
     if validate():
-        x,y = [],[]
+        x,y,z,a = [],[],[],1
         for file in fullpath():
             try:
                 hash = imagehash.whash(Image.open(file))
@@ -261,14 +264,23 @@ def similar():
                 y.append(hash)
             except OSError:
                 pass
-        a = 1
-        b = [item for item, count in collections.Counter(y).items() if count > 1]
-        for i in range(len(b)):
+        c = [item for item, count in collections.Counter(y).items() if count > 1]
+        for i in range(len(c)):
+            for j in range(i+1, len(c)):
+                    if abs(c[i] - c[j]) < 8:
+                        z.append(c[i])
+        for i in range(len(z)):
+            try:
+                c.remove(z[i])
+            except:
+                pass
+        for i in range(len(c)):
             listbox.insert(END, "Duplicate set:"+ str(a))
             a += 1
             for j in range(len(y)):
-                if b[i]-y[j] < 8:
-                    listbox.insert(END, x[j]+ " Factor:"+ str(b[i]-y[j]))
+                if c[i]-y[j] < 8:
+                    #print(x[j], " Factor:", c[i]-y[j])
+                    listbox.insert(END, "Dupes: "+ x[j] + " Factor: "+str(c[i]-y[j]))
         listbox.insert(END, "--------------Done Finding Similar Images--------------")
 
 def search():
@@ -285,7 +297,7 @@ def search():
             if not (img == x[i]):
                 if y[i]-hash1 < 8:
                     listbox.insert(END, x[i]+" Factor: "+str(y[i]-hash1))
-        listbox.insert(END, "--------------Done Similar Function--------------")
+        listbox.insert(END, "--------------Done Image Search Function--------------")
 
 def stats():
     if validate():

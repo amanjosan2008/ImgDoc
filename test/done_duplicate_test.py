@@ -3,8 +3,8 @@ import os
 from hashlib import md5
 import collections
 
-#dir = "D:\Files\Claims\Mediassit\Claim 2"
-dir = "/home/aman/Desktop/test"
+dir = "D:\Files\Claims\Mediassit\Test"
+#dir = "/home/aman/Desktop/test"
 
 def filesize(file):
     size = os.path.getsize(file)
