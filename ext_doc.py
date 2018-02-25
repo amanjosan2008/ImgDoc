@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# Remove Function complete listbox
 
 from tkinter import *
 from tkinter import filedialog
@@ -32,16 +33,22 @@ def filesize(file):
     sizeflt = "{:.2f}".format(sizeinmb)
     return sizeflt
 
+def lb(text):
+    listbox.insert(END, text)
+    listbox.yview(END)
+
 def validate():
     if os.path.exists(en.get()):
         return True
     else:
-        listbox.insert(END, "Incorrect or No Path Entered")
+        lb("Incorrect or No Path Entered")
         return False
 
 def browse():
-    currdir = os.getcwd()
-    dir = filedialog.askdirectory(parent=root, initialdir=currdir, title='Please select a directory')
+    try:
+        dir = filedialog.askdirectory(parent=root, initialdir='/data/.folder/', title='Please select a directory')
+    except:
+        dir = filedialog.askdirectory(parent=root, initialdir=os.getcwd(), title='Please select a directory')
     en.delete(0,END)
     en.insert(0,dir)
 
@@ -49,14 +56,16 @@ def write():
     if var.get():
         return True
     else:
-        listbox.insert(END, "Write Access not enabled")
+        lb("Write Access not enabled")
         return False
 
 def ls():
     if validate():
+        lb("File List:")
         for file in fullpath():
             name = os.path.relpath(file, en.get())
-            listbox.insert(END, name)
+            lb(" - "+name)
+    lb("")
 
 def count():
     if validate():
@@ -65,7 +74,8 @@ def count():
         for file in fullpath():
             x.append(file)
         leng = len(x)
-        listbox.insert(END, "Count: "+str(leng))
+        lb("Count: "+str(leng))
+        lb("")
 
 def backup():
     if validate():
@@ -79,9 +89,10 @@ def backup():
         for name in fullpath():
             wr.write(name + '\n')
             tar.add(name)
+            lb("File backup: "+name)
         wr.close()
         tar.close()
-        listbox.insert(END, "--------------Backup Done-----------------")
+        lb("")
 
 def missing():
     if validate():
@@ -89,20 +100,20 @@ def missing():
             fn, ext = os.path.splitext(file)
             ftype = imghdr.what(file)
             if ftype == None:
-                listbox.insert(END, "Unsupported file")
+                lb("Unsupported file")
             else:
                 newname = file +"."+ ftype
                 if not ext:
                     filechk = Path(newname)
                     if filechk.is_file():
-                        listbox.insert(END, file+": File already EXISTS, not overwriting: "+str(filechk))
+                        lb(file+": File already EXISTS, not overwriting: "+str(filechk))
                     else:
-                        listbox.insert(END, file+": has no ext, Appending: "+ftype)
+                        lb(file+": has no ext, Appending: "+ftype)
                         if write():
                             shutil.move(file, newname)
                 else:
                     continue
-        listbox.insert(END, "--------------Done adding missing extensions--------------")
+        lb("")
 
 def correct():
     if validate():
@@ -121,10 +132,10 @@ def correct():
                             filechk = file.replace(ext,ftype)
                             filechk2 = Path(filechk)
                             if filechk2.is_file():
-                                listbox.insert(END, file+": File already EXISTS, not overwritting: "+str(filechk2))
+                                lb(file+": File already EXISTS, not overwritting: "+str(filechk2))
                             else:
                                 # rename the file
-                                listbox.insert(END, file+ext+("=>")+ftype)
+                                lb(file+ext+(" => ")+ftype)
                                 if write():
                                     shutil.move(file, file.replace(ext,ftype))
                     else:
@@ -132,19 +143,19 @@ def correct():
                             filechk = file.replace(ext,"jpg")
                             filechk2 = Path(filechk)
                             if filechk2.is_file():
-                                listbox.insert(END, file+": File already EXISTS, not overwritting: "+filechk2)
+                                lb(file+": File already EXISTS, not overwritting: "+filechk2)
                             else:
-                                listbox.insert(END, file+": File type not determined for PNG => "+file.replace(ext,"jpg"))
+                                lb(file+": File type not determined for PNG => "+file.replace(ext,"jpg"))
                                 if write():
                                     shutil.move(file, file.replace(ext,"jpg"))
                         else:
-                            listbox.insert(END, file+": Could not determine file type.")
+                            lb(file+": Could not determine file type.")
                 else:
                     # Correct Extension
                     continue
             else:
-                listbox.insert(END, file+": No Extension detected, Run Missing Extensions function.")
-        listbox.insert(END, "--------------Done correcting extensions--------------")
+                lb(file+": No Extension detected, Run Missing Extensions function.")
+        lb("")
 
 def webpconv():
     if validate():
@@ -154,30 +165,30 @@ def webpconv():
                 fnpng = name + ".jpg"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    listbox.insert(END, file+"("+filesize(file)+"MB)"+": File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+"MB)")
+                    lb(file+"("+filesize(file)+"MB)"+": File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+"MB)")
                 else:
                     try:
                         if write():
                             im = Image.open(file).convert("RGB")
                             im.save(fnpng, "jpeg")
                             if fpath.is_file():
-                                listbox.insert(END, file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
+                                lb(file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
                                 os.remove(file)
                             else:
-                                listbox.insert(END, file+": Conversion to JPG failed")
+                                lb(file+": Conversion to JPG failed")
                         else:
-                            listbox.insert(END, file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+name+".jpg")
+                            lb(file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+name+".jpg")
 
                     except OSError as e:
-                        listbox.insert(END, file+": Exception occured: "+str(e))
+                        lb(file+": Exception occured: "+str(e))
                         pass
                     except:
-                        listbox.insert(END, "Exception error occured when processing: "+file)
+                        lb("Exception error occured when processing: "+file)
                         pass
             else:
                 #File is not Webp, Skipping
                 continue
-        listbox.insert(END, "--------------Done Webp Conversion--------------")
+        lb("")
 
 def colonrep():
     if validate():
@@ -186,40 +197,40 @@ def colonrep():
                 filechk = file.replace(":","_")
                 filechk2 = Path(filechk)
                 if filechk2.is_file():
-                    listbox.insert(END, file+": File already EXISTS, not overwriting: "+filechk2)
+                    lb(file+": File already EXISTS, not overwriting: "+filechk2)
                 else:
                     # rename the file
-                    listbox.insert(END, file+(" Colon => ")+file.replace(":","_"))
+                    lb(file+(" Colon => ")+file.replace(":","_"))
                     if write():
                         shutil.move(file, file.replace(":","_"))
             else:
                 #Colon not found in name
-                continue
-        listbox.insert(END, "--------------Done Colon Replace with Space--------------")
+                lb("Colon not found in filename "+name)
+        lb("")
 
 def verify():
     if validate():
         try:
-            listbox.insert(END, "Initial Count: "+str(leng))
+            lb("Initial Count: "+str(leng))
             x = []
             for file in fullpath():
                 x.append(file)
             leng2 = len(x)
-            listbox.insert(END, "Final Count: "+str(leng2))
+            lb("Final Count: "+str(leng2))
             if leng == leng2:
-                listbox.insert(END, "Operation completed successfully")
+                lb("Operation completed successfully")
             else:
-                listbox.insert(END, "Operation failed, some files missing, Restore from backup !!!")
+                lb("Operation failed, some files missing, Restore from backup !!!")
         except NameError:
-            listbox.insert(END, "Count function not used before operation, cannot use this feature now")
+            lb("Count function not used before operation, cannot use this feature now")
 
 def delete():
     if validate():
         try:
             shutil.rmtree("tmp")
-            listbox.insert(END, "Backup Directory Deleted")
+            lb("Backup Directory Deleted")
         except:
-            listbox.insert(END, "Backup not found")
+            lb("Backup not found")
 
 def duplicate():
     if validate():
@@ -238,21 +249,21 @@ def duplicate():
         a = 1
         b = [item for item, count in collections.Counter(y).items() if count > 1]
         for i in range(len(b)):
-            listbox.insert(END, "Duplicate Set: "+ str(a))
+            lb("Duplicate Set: "+ str(a))
             a += 1
             c = 0
             for j in range(len(y)):
                 if b[i] == y[j]:
                     if c == 0:
-                        listbox.insert(END, "Original File: "+ x[j])
+                        lb("Original File: "+ x[j])
                         c += 1
                     else:
                         if write():
                             os.remove(x[j])
-                            listbox.insert(END, "Deleted duplicate file: "+ x[j])
+                            lb("Deleted duplicate file: "+ x[j])
                         else:
-                            listbox.insert(END, x[j]+" WILL BE deleted")
-        listbox.insert(END, "--------------Done Finding Duplicates--------------")
+                            lb(x[j]+" WILL BE deleted")
+        lb("")
 
 def similar():
     if validate():
@@ -275,13 +286,13 @@ def similar():
             except:
                 pass
         for i in range(len(c)):
-            listbox.insert(END, "Duplicate set:"+ str(a))
+            lb("Duplicate set:"+ str(a))
             a += 1
             for j in range(len(y)):
                 if c[i]-y[j] < 8:
                     #print(x[j], " Factor:", c[i]-y[j])
-                    listbox.insert(END, "Dupes: "+ x[j] + " Factor: "+str(c[i]-y[j]))
-        listbox.insert(END, "--------------Done Finding Similar Images--------------")
+                    lb("Dupes: "+ x[j] + " Factor: "+str(c[i]-y[j]))
+        lb("")
 
 def search():
     if validate():
@@ -296,20 +307,20 @@ def search():
         for i in range(len(x)):
             if not (img == x[i]):
                 if y[i]-hash1 < 8:
-                    listbox.insert(END, x[i]+" Factor: "+str(y[i]-hash1))
-        listbox.insert(END, "--------------Done Image Search Function--------------")
+                    lb(x[i]+" Factor: "+str(y[i]-hash1))
+        lb("")
 
 def stats():
     if validate():
-        listbox.insert(END, "Directory Stats are below:")
+        lb("Directory Stats are below:")
         x = []
         for file in fullpath():
                 ext = os.path.splitext(file)[1][1:]
                 x.append(ext)
         y = set(x)
         for i in y:
-            listbox.insert(END, i+" : "+str(x.count(i)))
-        listbox.insert(END, "--------------Done Stats--------------")
+            lb(i+" : "+str(x.count(i)))
+        lb("")
 
 def top():
     if validate():
@@ -327,9 +338,9 @@ def top():
             key, value = max(x.items(), key = lambda p: p[1])
             sizeinmb = (value/1000000)
             sizeflt = "{:.2f}".format(sizeinmb)
-            listbox.insert(END, key+" => "+sizeflt+"MB")
+            lb(key+" => "+sizeflt+"MB")
             x.pop((max(x, key=x.get)))
-        listbox.insert(END, "--------------Done Top 10 Function--------------")
+        lb("")
 
 def hugepng():
     if validate():
@@ -342,34 +353,34 @@ def hugepng():
                 fnpng = name + ".jpg"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    listbox.insert(END, file+"("+filesize(file)+"MB)"+ ": File already EXISTS, not overwritting: "+ fnpng+ "("+filesize(fnpng)+"MB)" )
+                    lb(file+"("+filesize(file)+"MB)"+ ": File already EXISTS, not overwritting: "+ fnpng+ "("+filesize(fnpng)+"MB)" )
                 else:
                     try:
                         if write():
                             im = Image.open(file).convert("RGB")
                             im.save(fnpng, "jpeg")
                             if fpath.is_file():
-                                listbox.insert(END, file+"("+filesize(file)+"MB)"+ " deleted and Converted file saved as: "+ fnpng+ "("+filesize(fnpng)+"MB)")
+                                lb(file+"("+filesize(file)+"MB)"+ " deleted and Converted file saved as: "+ fnpng+ "("+filesize(fnpng)+"MB)")
                                 os.remove(file)
                             else:
-                                listbox.insert(END, file+": Conversion to JPG failed")
+                                lb(file+": Conversion to JPG failed")
                         else:
-                            listbox.insert(END, file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+fnpng)
+                            lb(file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+fnpng)
                     except OSError as e:
-                        listbox.insert(END, file+": Exception occured: "+str(e))
+                        lb(file+": Exception occured: "+str(e))
                         pass
                     except:
-                        listbox.insert(END, "Exception error occured when processing: "+file)
+                        lb("Exception error occured when processing: "+file)
                         pass
             else:
                 #File is not Huge PNG, Skipping
                 continue
-        listbox.insert(END, "--------------Done Webp Conversion--------------")
+        lb("")
 
 def clear():
     listbox.delete(0, END)
 
-Label(root, text="Extensions Doctor", font=("Times", 35), width=20).grid(row=0, columnspan=6)
+Label(root, text="File Extension Doctor", font=("Times", 35), width=20).grid(row=0, columnspan=6)
 en = Entry(root, width=60)
 en.grid(row=1, column=0,columnspan=4)
 en.focus_set()
@@ -407,15 +418,18 @@ Button(root, text="Exit", width=20, command=exit).grid(row=19, column=0)
 root.grid_rowconfigure(7, minsize=20)
 root.grid_columnconfigure(1, minsize=10)
 
-listbox = Listbox(root, height=30, width=140)
+scrollbar = Scrollbar(root, orient=VERTICAL)
+listbox = Listbox(root, height=30, width=140, yscrollcommand=scrollbar.set)
 listbox.xview_scroll(3, "pages")
 listbox.yview_scroll(3, "pages")
-listbox.grid(row=3, column=2, rowspan=20, columnspan=6)
+scrollbar.config(command=listbox.yview)
+scrollbar.grid(row=3, column=8, rowspan=17, columnspan=1, ipady = 226)
+listbox.grid(row=3, column=2, rowspan=17, columnspan=6)
 
-listbox.insert(END, "Ready, Log Output: ")
+lb("Ready, Log Output: ")
 
 root.geometry("1400x700")
-root.title("File Extensions Doctor")
+root.title("Correct extensions of multiple files")
 
 img = PhotoImage(file='icon.png')
 root.tk.call('wm', 'iconphoto', root._w, img)

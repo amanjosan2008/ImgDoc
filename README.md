@@ -5,7 +5,6 @@ This application will work in both Linux & Windows under Python 3 environment.
 
 
 Features:
-
 - Count of Files
 - Backup Files
 - Missing Extensions
@@ -22,32 +21,20 @@ Features:
 
 
 Requirements:
-- Python3
-- Tkinter
-- Sys
-- Glob
-- OS
-- RE
-- Tarfile
-- Imghdr
-- Shutil
-- Subprocess
-- Pathlib
-- Collections
-- PIL
-- Itertools
-- Hashlib
-- Imagehash
+- Python3, Tkinter
+- Sys, Glob, OS, RE
+- Tarfile, Subprocess
+- Imghdr, Shutil
+- Pathlib, Itertools
+- Collections, PIL
+- Hashlib, Imagehash
 
 
 Pending Tasks:
-
 - Taskbar Icon in file
 - If Ext == JPEG, rename to JPG
-- Listbox auto scroll
-- Append (1) in name if existing file
-- Warn Existing backup/Overwriting
-- Remove other special characters , ! ? #
+- Feature to append (1) in name if existing file
+- Option to Remove other special characters , ! ? #
 - Audio alert after long operation/Status bar red icon when Busy
 - Stats fn - Sort results
 - Search function difference: if not (img == x[i]) Windows only:
