@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 # Find out & Report Images/files as html
-# Progress Bar - Backup Fn Underconstruction
 # Add Progress Bar to all Functions
 
 from tkinter import *
@@ -16,6 +15,7 @@ import PIL
 from itertools import islice
 from hashlib import md5
 import imagehash
+import time, random
 
 root = Tk()
 
@@ -93,13 +93,14 @@ def backup():
         wr.write("List of files:\n\n")
         frame.config(cursor="watch")
         frame.update()
-        i = 0
+        i = 1
         j = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
         for name in fullpath():
             wr.write(name + '\n')
             tar.add(name)
             lb("File backup: "+name)
-            bar['value'] = (i/j)*100
+            bar['value'] = int(i/j*100)
+            root.update_idletasks()
             i += 1
         frame.config(cursor="")
         wr.close()
@@ -462,12 +463,12 @@ lb("Ready, Log Output: ")
 
 # Progress Bar
 bar = ttk.Progressbar(frame, length=700)
-bar.grid(row=20,column=2, sticky=W)
+bar.grid(row=20,column=2)
 
-#root.geometry("1400x700")
 root.title("Correct extensions of multiple files")
 
 img = PhotoImage(file='icon.png')
 root.tk.call('wm', 'iconphoto', root._w, img)
 root.mainloop()
+
 
