@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # Find out & Report Images/files as html
-# Add Progress Bar to all Functions
+# Count of Webp, PNG, missing, duplicate, corrected, etc files to be processed
+# Info: No of files changed/processed
+# ProgressBar Show only no of files to be processed
+# Duplicate, Similar, Search, Top Fn add => 50% + 50% ProgBar
+# Count of Unsupported files for all Functions
+# Count of total Processed files for all Functions
+# HugePNG Size Compare Function not working correctly
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -15,7 +21,6 @@ import PIL
 from itertools import islice
 from hashlib import md5
 import imagehash
-import time, random
 
 root = Tk()
 
@@ -46,7 +51,7 @@ def validate():
     if os.path.exists(en.get()):
         return True
     else:
-        lb("Incorrect or No Path Entered")
+        lb("Error: Incorrect or No Path Entered")
         return False
 
 def browse():
@@ -61,7 +66,7 @@ def write():
     if var.get():
         return True
     else:
-        lb("Write Access not enabled")
+        #lb("Error: Write Access not enabled")
         return False
 
 def ls():
@@ -93,15 +98,17 @@ def backup():
         wr.write("List of files:\n\n")
         frame.config(cursor="watch")
         frame.update()
-        i = 1
-        j = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
+        bar['value'] = 1
+        p = 1
+        count()
+        #j = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
         for name in fullpath():
             wr.write(name + '\n')
             tar.add(name)
             lb("File backup: "+name)
-            bar['value'] = int(i/j*100)
+            bar['value'] = int(p/leng*100)
             root.update_idletasks()
-            i += 1
+            p += 1
         frame.config(cursor="")
         wr.close()
         tar.close()
@@ -113,13 +120,14 @@ def missing():
             fn, ext = os.path.splitext(file)
             ftype = imghdr.what(file)
             if ftype == None:
-                lb("Unsupported file")
+                continue
+                #lb("Error: Unsupported file"+ file.split('/')[-1])
             else:
                 newname = file +"."+ ftype
                 if not ext:
                     filechk = Path(newname)
                     if filechk.is_file():
-                        lb(file+": File already EXISTS, not overwriting: "+str(filechk))
+                        lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
                     else:
                         lb(file+": has no ext, Appending: "+ftype)
                         if write():
@@ -130,9 +138,15 @@ def missing():
 
 def correct():
     if validate():
+        bar['value'] = 1
+        p = 1
+        count()
         frame.config(cursor="watch")
         frame.update()
         for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
             # find the correct extension
             ftype = imghdr.what(file)
             ext = os.path.splitext(file)[1][1:]
@@ -147,10 +161,10 @@ def correct():
                             filechk = file.replace(ext,ftype)
                             filechk2 = Path(filechk)
                             if filechk2.is_file():
-                                lb(file+": File already EXISTS, not overwritting: "+str(filechk2))
+                                lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
                             else:
                                 # rename the file
-                                lb(file+ext+(" => ")+ftype)
+                                lb("Rename file: "+file+" from: "+ext+(" => ")+ftype)
                                 if write():
                                     shutil.move(file, file.replace(ext,ftype))
                     else:
@@ -158,32 +172,39 @@ def correct():
                             filechk = file.replace(ext,"jpg")
                             filechk2 = Path(filechk)
                             if filechk2.is_file():
-                                lb(file+": File already EXISTS, not overwritting: "+filechk2)
+                                lb("Error: "+file+": File already EXISTS, not overwritting: "+filechk2)
                             else:
-                                lb(file+": File type not determined for PNG => "+file.replace(ext,"jpg"))
+                                lb(file+": File type not determined for PNG, Renaming to: => "+file.replace(ext,"jpg"))
                                 if write():
                                     shutil.move(file, file.replace(ext,"jpg"))
                         else:
-                            lb(file+": Could not determine file type.")
+                            continue
+                            #lb("Error: "+file+": Could not determine file type.")
                 else:
                     # Correct Extension
                     continue
             else:
-                lb(file+": No Extension detected, Run Missing Extensions function.")
+                lb("Error: "+file+": No Extension detected, Run Missing Extensions function.")
         frame.config(cursor="")
         lb("")
 
 def webpconv():
     if validate():
+        bar['value'] = 1
+        p = 1
+        count()
         frame.config(cursor="watch")
         frame.update()
         for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
             name, ext = os.path.splitext(file)
             if ext == ".webp":
                 fnpng = name + ".jpg"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    lb(file+"("+filesize(file)+"MB)"+": File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+"MB)")
+                    lb("Error: "+file+"("+filesize(file)+"MB)"+": File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+"MB)")
                 else:
                     try:
                         if write():
@@ -193,15 +214,15 @@ def webpconv():
                                 lb(file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
                                 os.remove(file)
                             else:
-                                lb(file+": Conversion to JPG failed")
+                                lb("Error: "+file+": Conversion to JPG failed")
                         else:
-                            lb(file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+name+".jpg")
+                            lb("Info: "+file+"("+filesize(file)+"MB)"+" be deleted and Converted file be saved as: "+name+".jpg")
 
                     except OSError as e:
-                        lb(file+": Exception occured: "+str(e))
+                        lb("Error: "+file+": Exception occured: "+str(e))
                         pass
                     except:
-                        lb("Exception error occured when processing: "+file)
+                        lb("Error: Exception error occured when processing: "+file)
                         pass
             else:
                 #File is not Webp, Skipping
@@ -216,14 +237,17 @@ def colonrep():
                 filechk = file.replace(":","_")
                 filechk2 = Path(filechk)
                 if filechk2.is_file():
-                    lb(file+": File already EXISTS, not overwriting: "+filechk2)
+                    lb("Error: "+file+": File already EXISTS, not overwriting: "+filechk2)
                 else:
                     # rename the file
-                    lb(file+(" Colon => ")+file.replace(":","_"))
                     if write():
                         shutil.move(file, file.replace(":","_"))
+                        lb("Renamed file: "+file+(" => ")+file.replace(":","_"))
+                    else:
+                        lb("Info: Renamed file: "+file+(" will be saved as: ")+file.replace(":","_"))
             else:
-                lb("Colon not found in file: "+file.split('/')[-1])
+                continue
+                #lb("Error: Colon not found in file: "+file.split('/')[-1])
         lb("")
 
 def verify():
@@ -236,26 +260,32 @@ def verify():
             leng2 = len(x)
             lb("Final Count: "+str(leng2))
             if leng == leng2:
-                lb("Operation completed successfully")
+                lb("Info: Operation completed successfully")
             else:
-                lb("Operation failed, some files missing, Restore from backup !!!")
+                lb("Error: Operation failed, some files missing, Restore from backup !!!")
         except NameError:
-            lb("Count function not used before operation, cannot use this feature now")
+            lb("Error: Count function not used before operation, cannot use this feature now")
 
 def delete():
     if validate():
         try:
             shutil.rmtree("tmp")
-            lb("Backup Directory Deleted")
+            lb("Info: Backup Directory Deleted")
         except:
-            lb("Backup not found")
+            lb("Error: Backup not found")
 
 def duplicate():
     if validate():
         frame.config(cursor="watch")
         frame.update()
+        bar['value'] = 1
+        p = 1
+        count()
         x,y = [],[]
         for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
             afile = open(file, 'rb')
             hasher = md5()
             buf = afile.read(65536)
@@ -282,16 +312,22 @@ def duplicate():
                             os.remove(x[j])
                             lb("Deleted duplicate file: "+ x[j])
                         else:
-                            lb(x[j]+" WILL BE deleted")
+                            lb("Info: "+x[j]+" WILL BE deleted")
         frame.config(cursor="")
         lb("")
 
 def similar():
     if validate():
+        bar['value'] = 1
+        p = 1
+        count()
         frame.config(cursor="watch")
         frame.update()
         x,y,z,a = [],[],[],1
         for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
             try:
                 hash = imagehash.whash(Image.open(file))
                 x.append(file)
@@ -322,11 +358,17 @@ def search():
     if validate():
         frame.config(cursor="watch")
         frame.update()
+        bar['value'] = 1
+        p = 1
+        count()
         currdir = os.getcwd()
         img = filedialog.askopenfilename(parent=frame, initialdir=currdir, title='Please select an image')
         hash1 = imagehash.whash(PIL.Image.open(img))
         x,y = [],[]
         for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
             hash = imagehash.whash(PIL.Image.open(file))
             x.append(file)
             y.append(hash)
@@ -351,10 +393,16 @@ def stats():
 
 def top():
     if validate():
+        bar['value'] = 1
+        p = 1
+        count()
         frame.config(cursor="watch")
         frame.update()
         x = {}
         for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
             filesize = (os.path.getsize(file))
             relfile = os.path.relpath(file, en.get())
             x.update({relfile: filesize})
@@ -367,7 +415,7 @@ def top():
             key, value = max(x.items(), key = lambda p: p[1])
             sizeinmb = (value/1000000)
             sizeflt = "{:.2f}".format(sizeinmb)
-            lb(key+" => "+sizeflt+"MB")
+            lb(key+" ("+sizeflt+" MB)")
             x.pop((max(x, key=x.get)))
         frame.config(cursor="")
         lb("")
@@ -376,16 +424,24 @@ def hugepng():
     if validate():
         frame.config(cursor="watch")
         frame.update()
+        bar['value'] = 1
+        p = 1
+        count()
         x = {}
         for file in fullpath():
-            filesz = (os.path.getsize(file))
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
+            filesz = os.path.getsize(file)
             name, ext = os.path.splitext(file)
             # search huge PNG Files
+            #print(filesz/1000000)
             if (ext == ".png")|(ext == ".PNG") & (filesz > 1000000):
+                #print("H: ",filesz/1000000)
                 fnpng = name + ".jpg"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    lb(file+"("+filesize(file)+"MB)"+ ": File already EXISTS, not overwritting: "+ fnpng+ "("+filesize(fnpng)+"MB)" )
+                    lb("Error: "+file+"("+filesize(file)+"MB)"+ ": File already EXISTS, not overwritting: "+ fnpng+ "("+filesize(fnpng)+"MB)" )
                 else:
                     try:
                         if write():
@@ -395,14 +451,14 @@ def hugepng():
                                 lb(file+"("+filesize(file)+"MB)"+ " deleted and Converted file saved as: "+ fnpng+ "("+filesize(fnpng)+"MB)")
                                 os.remove(file)
                             else:
-                                lb(file+": Conversion to JPG failed")
+                                lb("Error: "+file+": Conversion to JPG failed")
                         else:
-                            lb(file+"("+filesize(file)+"MB)"+" WILL BE deleted and Converted file TO BE saved as: "+fnpng)
+                            lb("Info: "+file+"("+filesize(file)+"MB)"+" be deleted and Converted file be saved as: "+fnpng)
                     except OSError as e:
-                        lb(file+": Exception occured: "+str(e))
+                        lb("Error: "+file+": Exception occured: "+str(e))
                         pass
                     except:
-                        lb("Exception error occured when processing: "+file)
+                        lb("Error: Exception error occured when processing: "+file)
                         pass
             else:
                 #File is not Huge PNG, Skipping
