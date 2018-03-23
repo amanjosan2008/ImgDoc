@@ -1,12 +1,9 @@
 #!/usr/bin/env python3
 # Find out & Report Images/files as html
-# Count of Webp, PNG, missing, duplicate, corrected, etc files to be processed
-# Info: No of files changed/processed
-# ProgressBar Show only no of files to be processed
+# Unsupported JPG Files
 # Duplicate, Similar, Search, Top Fn add => 50% + 50% ProgBar
-# Count of Unsupported files for all Functions
-# Count of total Processed files for all Functions
 # HugePNG Size Compare Function not working correctly
+# Remove Missing Ext Fn
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -84,8 +81,11 @@ def count():
         for file in fullpath():
             x.append(file)
         leng = len(x)
-        lb("Count: "+str(leng))
-        lb("")
+        
+def count_lb():
+    count()
+    lb("Count: "+str(leng))
+    lb("")
 
 def backup():
     if validate():
@@ -101,7 +101,6 @@ def backup():
         bar['value'] = 1
         p = 1
         count()
-        #j = len([name for name in os.listdir(en.get()) if os.path.isfile(os.path.join(en.get(), name))])
         for name in fullpath():
             wr.write(name + '\n')
             tar.add(name)
@@ -112,29 +111,54 @@ def backup():
         frame.config(cursor="")
         wr.close()
         tar.close()
+        lb("Info: Total Files backed up: "+str(p-1))
         lb("")
 
-def missing():
-    if validate():
-        for file in fullpath():
-            fn, ext = os.path.splitext(file)
-            ftype = imghdr.what(file)
-            if ftype == None:
-                continue
-                #lb("Error: Unsupported file"+ file.split('/')[-1])
-            else:
-                newname = file +"."+ ftype
-                if not ext:
-                    filechk = Path(newname)
-                    if filechk.is_file():
-                        lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
-                    else:
-                        lb(file+": has no ext, Appending: "+ftype)
-                        if write():
-                            shutil.move(file, newname)
-                else:
-                    continue
-        lb("")
+#def missing():
+#    if validate():
+#        frame.config(cursor="watch")
+#        frame.update()
+#        bar['value'] = 1
+#        p = 1
+#        count()
+#        c = 0
+#        d = 0
+#        for file in fullpath():
+#            bar['value'] = int(p/leng*100)
+#            root.update_idletasks()
+#            p += 1
+#            fn, ext = os.path.splitext(file)
+#            ftype = imghdr.what(file)
+#            if ftype == None:
+#                c += 1
+#                continue
+#                #lb("Error: Unsupported file"+ file.split('/')[-1])
+#            elif ftype == "jpeg":
+#                if not ext:
+#                    newname = file +"."+ "jpg"
+#                    filechk = Path(newname)
+#                    if filechk.is_file():
+#                        lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
+#                    else:
+#                        lb(file+": has no ext, Appending: jpg")
+#                        if write():
+#                            shutil.move(file, newname)
+#                            d += 1            
+#            else:
+#                newname = file +"."+ ftype
+#                if not ext:
+#                    filechk = Path(newname)
+#                    if filechk.is_file():
+#                        lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
+#                    else:
+#                        lb(file+": has no ext, Appending: "+ftype)
+#                        if write():
+#                            shutil.move(file, newname)
+#                            d += 1
+#                else:
+#                    continue
+#        frame.config(cursor="")
+#        lb("Info: Total Files: "+str(leng)+ " Processed Files: "+str(d)+" Unsupported Files: "+str(c))
 
 def correct():
     if validate():
@@ -143,6 +167,7 @@ def correct():
         count()
         frame.config(cursor="watch")
         frame.update()
+        c,d = 0,0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             root.update_idletasks()
@@ -154,9 +179,21 @@ def correct():
             if ext:
                 if ftype != ext:
                     if ftype != None:
-                        #File type is JPG/JPEG, ignoring
+                        #File type is JPG or JPEG, ignore the mismatch
                         if (ftype == "jpeg") & (ext == "jpg"):
                             continue
+                        # If Ftype is jpeg & Ext not JPG, rename it to jpg
+                        elif (ftype == "jpeg") & (ext != "jpg"):
+                            filechk = file.replace(ext,"jpg")
+                            filechk2 = Path(filechk)
+                            if filechk2.is_file():
+                                lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
+                            else:
+                                # rename the file
+                                lb("Rename file: "+file+" from: "+ext+(" => ")+"jpg")
+                                if write():
+                                    shutil.move(file, file.replace(ext,"jpg"))
+                                    c += 1
                         else:
                             filechk = file.replace(ext,ftype)
                             filechk2 = Path(filechk)
@@ -167,6 +204,7 @@ def correct():
                                 lb("Rename file: "+file+" from: "+ext+(" => ")+ftype)
                                 if write():
                                     shutil.move(file, file.replace(ext,ftype))
+                                    c += 1
                     else:
                         if ext == "png":
                             filechk = file.replace(ext,"jpg")
@@ -177,15 +215,43 @@ def correct():
                                 lb(file+": File type not determined for PNG, Renaming to: => "+file.replace(ext,"jpg"))
                                 if write():
                                     shutil.move(file, file.replace(ext,"jpg"))
+                                    c += 1
                         else:
+                            d += 1
                             continue
                             #lb("Error: "+file+": Could not determine file type.")
                 else:
                     # Correct Extension
                     continue
             else:
-                lb("Error: "+file+": No Extension detected, Run Missing Extensions function.")
+                if ftype == None:
+                    d += 1
+                elif ftype == "jpeg":
+                    #if not ext:
+                    newname = file +"."+ "jpg"
+                    filechk = Path(newname)
+                    if filechk.is_file():
+                        lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
+                    else:
+                        lb(file+": has no ext, Appending: jpg")
+                        if write():
+                            shutil.move(file, newname)
+                            c += 1            
+                else:
+                    newname = file +"."+ ftype
+                    #if not ext:
+                    filechk = Path(newname)
+                    if filechk.is_file():
+                        lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
+                    else:
+                        lb(file+": has no ext, Appending: "+ftype)
+                        if write():
+                            shutil.move(file, newname)
+                            c += 1
+                                
+                #lb("Error: "+file+": No Extension detected, Run Missing Extensions function.")
         frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c)+" Unsupported Files: "+str(d))
         lb("")
 
 def webpconv():
@@ -195,6 +261,7 @@ def webpconv():
         count()
         frame.config(cursor="watch")
         frame.update()
+        c = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             root.update_idletasks()
@@ -210,6 +277,7 @@ def webpconv():
                         if write():
                             im = Image.open(file).convert("RGB")
                             im.save(fnpng, "jpeg")
+                            c += 1
                             if fpath.is_file():
                                 lb(file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
                                 os.remove(file)
@@ -217,7 +285,6 @@ def webpconv():
                                 lb("Error: "+file+": Conversion to JPG failed")
                         else:
                             lb("Info: "+file+"("+filesize(file)+"MB)"+" be deleted and Converted file be saved as: "+name+".jpg")
-
                     except OSError as e:
                         lb("Error: "+file+": Exception occured: "+str(e))
                         pass
@@ -228,11 +295,21 @@ def webpconv():
                 #File is not Webp, Skipping
                 continue
         frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c))
         lb("")
 
 def colonrep():
     if validate():
+        bar['value'] = 1
+        p = 1
+        count()
+        frame.config(cursor="watch")
+        frame.update()
+        c = 0
         for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            root.update_idletasks()
+            p += 1
             if re.search(r':', file):
                 filechk = file.replace(":","_")
                 filechk2 = Path(filechk)
@@ -243,11 +320,14 @@ def colonrep():
                     if write():
                         shutil.move(file, file.replace(":","_"))
                         lb("Renamed file: "+file+(" => ")+file.replace(":","_"))
+                        c += 1
                     else:
                         lb("Info: Renamed file: "+file+(" will be saved as: ")+file.replace(":","_"))
             else:
                 continue
                 #lb("Error: Colon not found in file: "+file.split('/')[-1])
+        frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c))
         lb("")
 
 def verify():
@@ -265,6 +345,7 @@ def verify():
                 lb("Error: Operation failed, some files missing, Restore from backup !!!")
         except NameError:
             lb("Error: Count function not used before operation, cannot use this feature now")
+        lb("")
 
 def delete():
     if validate():
@@ -273,6 +354,7 @@ def delete():
             lb("Info: Backup Directory Deleted")
         except:
             lb("Error: Backup not found")
+        lb("")
 
 def duplicate():
     if validate():
@@ -282,6 +364,7 @@ def duplicate():
         p = 1
         count()
         x,y = [],[]
+        d = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             root.update_idletasks()
@@ -311,9 +394,11 @@ def duplicate():
                         if write():
                             os.remove(x[j])
                             lb("Deleted duplicate file: "+ x[j])
+                            d += 1
                         else:
                             lb("Info: "+x[j]+" WILL BE deleted")
         frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng) +" Deleted Files: "+ str(d))
         lb("")
 
 def similar():
@@ -352,6 +437,7 @@ def similar():
                     #print(x[j], " Factor:", c[i]-y[j])
                     lb("Dupes: "+ x[j] + " Factor: "+str(c[i]-y[j]))
         frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng)+" Duplicate Sets: "+ str(a-1))
         lb("")
 
 def search():
@@ -363,20 +449,35 @@ def search():
         count()
         currdir = os.getcwd()
         img = filedialog.askopenfilename(parent=frame, initialdir=currdir, title='Please select an image')
-        hash1 = imagehash.whash(PIL.Image.open(img))
+        try:
+            hash1 = imagehash.whash(PIL.Image.open(img))
+        except AttributeError:
+            lb("Info: Operation cancelled by user")
+            return
+        except OSError:
+            lb("Info: Corrupt image selected: "+img)
+            return
+        lb("Searching Image: "+img)
         x,y = [],[]
+        c = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             root.update_idletasks()
             p += 1
-            hash = imagehash.whash(PIL.Image.open(file))
+            try:
+                hash = imagehash.whash(PIL.Image.open(file))
+            except OSError:
+                lb("Error: Unsupported File" + file)
+                continue
             x.append(file)
             y.append(hash)
         for i in range(len(x)):
             if not (img == x[i]):
                 if y[i]-hash1 < 8:
                     lb(x[i]+" Factor: "+str(y[i]-hash1))
+                    c += 1
         frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng)+" Duplicate Sets: "+ str(c))
         lb("")
 
 def stats():
@@ -418,6 +519,7 @@ def top():
             lb(key+" ("+sizeflt+" MB)")
             x.pop((max(x, key=x.get)))
         frame.config(cursor="")
+        #lb("Info: Total Files: "+ str(leng))
         lb("")
 
 def hugepng():
@@ -428,6 +530,7 @@ def hugepng():
         p = 1
         count()
         x = {}
+        c = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             root.update_idletasks()
@@ -450,6 +553,7 @@ def hugepng():
                             if fpath.is_file():
                                 lb(file+"("+filesize(file)+"MB)"+ " deleted and Converted file saved as: "+ fnpng+ "("+filesize(fnpng)+"MB)")
                                 os.remove(file)
+                                c += 1
                             else:
                                 lb("Error: "+file+": Conversion to JPG failed")
                         else:
@@ -464,45 +568,47 @@ def hugepng():
                 #File is not Huge PNG, Skipping
                 continue
         frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng) + " Converted Files: "+str(c))
         lb("")
 
 def clear():
     listbox.delete(0, END)
 
 Label(frame, text="File Extension Doctor", font=("Times", 35), width=20).grid(row=0, columnspan=6)
+
 en = Entry(frame, width=60)
-en.grid(row=1, column=0,columnspan=4)
+en.grid(row=1, column=1)
 en.focus_set()
 
-Button(frame, text="Browse", width=20, command=browse).grid(row=1, column=3)
+Button(frame, text="Browse", width=15, command=browse).grid(row=1, column=2)
 
 var = IntVar()
 c = Checkbutton(frame, text="Write Access", variable=var)
-c.grid(row=1, column=4, rowspan=1, columnspan=1)
+c.grid(row=1, column=3, rowspan=1, columnspan=1)
 
 var2 = IntVar()
 d = Checkbutton(frame, text="Recursive", variable=var2)
-d.grid(row=1, column=5, rowspan=1, columnspan=1)
+d.grid(row=1, column=4, rowspan=1, columnspan=1)
 
 frame.grid_rowconfigure(2, minsize=20)
 
 Button(frame, text="Show Files", width=20, command=ls).grid(row=3, column=0)
-Button(frame, text="Count of Files", width=20, command=count).grid(row=4, column=0)
-Button(frame, text="Backup Files", width=20, command=backup).grid(row=5, column=0)
-Button(frame, text="Missing Extensions", width=20, command=missing).grid(row=6, column=0)
-Button(frame, text="Correct Extensions", width=20, command=correct).grid(row=7, column=0)
-Button(frame, text="Webp Convert", width=20, command=webpconv).grid(row=8, column=0)
-Button(frame, text="Replace Colon", width=20, command=colonrep).grid(row=9, column=0)
-Button(frame, text="Verify Files", width=20, command=verify).grid(row=10, column=0)
-Button(frame, text="Delete Backups", width=20, command=delete).grid(row=11, column=0)
-Button(frame, text="Delete Duplicate", width=20, command=duplicate).grid(row=12, column=0)
-Button(frame, text="Find Similar Images", width=20, command=similar).grid(row=13, column=0)
-Button(frame, text="Image Search", width=20, command=search).grid(row=14, column=0)
-Button(frame, text="Show Stats", width=20, command=stats).grid(row=15, column=0)
-Button(frame, text="Top 10 Files", width=20, command=top).grid(row=16, column=0)
-Button(frame, text="Huge PNG Convertor", width=20, command=hugepng).grid(row=17, column=0)
-Button(frame, text="Clear Log Output", width=20, command=clear).grid(row=18, column=0)
-Button(frame, text="Exit", width=20, command=exit).grid(row=19, column=0)
+Button(frame, text="File Count", width=20, command=count_lb).grid(row=4, column=0)
+Button(frame, text="Show Stats", width=20, command=stats).grid(row=5, column=0)
+Button(frame, text="Top 10 Files", width=20, command=top).grid(row=6, column=0)
+Button(frame, text="Backup Files", width=20, command=backup).grid(row=7, column=0)
+Button(frame, text="Delete Backup", width=20, command=delete).grid(row=8, column=0)
+Button(frame, text="Verify Files", width=20, command=verify).grid(row=9, column=0)
+#Button(frame, text="Missing Extensions", width=20, command=missing).grid(row=10, column=0)
+Button(frame, text="Correct Extensions", width=20, command=correct).grid(row=10, column=0)
+Button(frame, text="Webp Convert", width=20, command=webpconv).grid(row=11, column=0)
+Button(frame, text="Replace Colon", width=20, command=colonrep).grid(row=12, column=0)
+Button(frame, text="Duplicates", width=20, command=duplicate).grid(row=13, column=0)
+Button(frame, text="Similar Images", width=20, command=similar).grid(row=14, column=0)
+Button(frame, text="Image Search", width=20, command=search).grid(row=15, column=0)
+Button(frame, text="Huge PNG", width=20, command=hugepng).grid(row=16, column=0)
+Button(frame, text="Clear Logs", width=20, command=clear).grid(row=17, column=0)
+Button(frame, text="Exit", width=20, command=exit).grid(row=18, column=0)
 
 frame.grid_rowconfigure(7, minsize=20)
 frame.grid_columnconfigure(1, minsize=10)
@@ -513,13 +619,13 @@ listbox.xview_scroll(3, "pages")
 listbox.yview_scroll(3, "pages")
 scrollbar.config(command=listbox.yview)
 scrollbar.grid(row=3, column=8, rowspan=17, columnspan=1, ipady = 226)
-listbox.grid(row=3, column=2, rowspan=17, columnspan=6)
+listbox.grid(row=3, column=1, rowspan=17, columnspan=6)
 
 lb("Ready, Log Output: ")
 
 # Progress Bar
 bar = ttk.Progressbar(frame, length=700)
-bar.grid(row=20,column=2)
+bar.grid(row=20, column=1, columnspan=2)
 
 root.title("Correct extensions of multiple files")
 
