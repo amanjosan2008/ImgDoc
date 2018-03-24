@@ -540,7 +540,7 @@ def clear():
     listbox.delete(0, END)
 
 def page():
-    webbrowser.open_new(r"https://github.com/amanjosan2008/Video-Collection-Manager")
+    webbrowser.open_new(r"https://github.com/amanjosan2008/Image-Extension-Doctor")
 
 def about():
     win1 = Toplevel()
@@ -607,19 +607,23 @@ Button(frame2, text="Image Search", width=12, command=search).grid(row=5)
 Button(frame2, text="Huge PNG", width=12, command=hugepng).grid(row=6)
 
 # Listbox & Scrollbar
-scrollbar = Scrollbar(frame3, orient=VERTICAL)
-listbox = Listbox(frame3, height=30, width=100, yscrollcommand=scrollbar.set)
+scrollbar1 = Scrollbar(frame3, orient=VERTICAL)
+scrollbar2 = Scrollbar(frame3, orient=HORIZONTAL)
+listbox = Listbox(frame3, height=30, width=100, yscrollcommand=scrollbar1.set, xscrollcommand=scrollbar2.set)
 listbox.xview_scroll(3, "pages")
 listbox.yview_scroll(3, "pages")
-listbox.grid(row=0)
-scrollbar.config(command=listbox.yview)
-scrollbar.grid(row=0, column=1, ipady = 226)
+listbox.grid(row=0, columnspan=2)
+scrollbar1.config(command=listbox.yview)
+scrollbar1.grid(row=0, column=2, ipady = 226)
+scrollbar2.config(command=listbox.xview)
+scrollbar2.grid(row=1, column=0, columnspan=2, ipadx = 386)
 
 lb("Ready, Log Output: ")
 
 # Progress Bar
-bar = ttk.Progressbar(frame3, length=700)
-bar.grid(row=1, column=0)
+Label(frame3, text="Progress:", width=15).grid(row=2, column=0)
+bar = ttk.Progressbar(frame3, length=678)
+bar.grid(row=2, column=1)
 
 root.title("File Extension Doctor")
 
