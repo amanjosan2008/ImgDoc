@@ -1,22 +1,17 @@
 #!/usr/bin/env python3
-# Find out & Report Images/files as html
-# Unsupported JPG Files
 # Duplicate, Similar, Search, Top Fn add => 50% + 50% ProgBar
 
 from tkinter import *
 from tkinter import filedialog, ttk
 import sys, glob, os, re
-import tarfile
+import tarfile, subprocess
 import imghdr, shutil
-import subprocess
 from pathlib import Path
-import collections
+import collections, PIL
 from PIL import Image
-import PIL
 from itertools import islice
 from hashlib import md5
-import imagehash
-import webbrowser
+import imagehash, webbrowser
 
 root = Tk()
 
@@ -69,7 +64,10 @@ def browse():
         dir = filedialog.askdirectory(parent=frame, initialdir=os.getcwd(), title='Please select a directory')
     en.delete(0,END)
     en.insert(0,dir)
-    count_lb()
+    try:
+        count_lb()
+    except:
+        pass
 
 def write():
     if var.get():
@@ -103,11 +101,10 @@ def count_lb():
 def correct():
     if validate():
         bar['value'] = 1
-        p = 1
+        p,c,d = 1,0,0
         count()
         frame.config(cursor="watch")
         frame.update()
-        c,d = 0,0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             root.update_idletasks()
@@ -146,29 +143,97 @@ def correct():
                                     shutil.move(file, file.replace(ext,ftype))
                                     c += 1
                     else:
-                        if ext == "png":
-                            filechk = file.replace(ext,"jpg")
-                            filechk2 = Path(filechk)
-                            if filechk2.is_file():
-                                lb("Error: "+file+": File already EXISTS, not overwritting: "+filechk2)
+                        #if ext == "png":
+                        #    filechk = file.replace(ext,"jpg")
+                        #    filechk2 = Path(filechk)
+                        #    if filechk2.is_file():
+                        #        lb("Error: "+file+": File already EXISTS, not overwritting: "+filechk2)
+                        #    else:
+                        #        lb(file+": File type not determined for PNG, Renaming to: => "+file.replace(ext,"jpg"))
+                        #        if write():
+                        #            shutil.move(file, file.replace(ext,"jpg"))
+                        #            c += 1
+                        #else:
+                            # Could not determine file type by imghdr, try File
+                            cmd = "/usr/bin/file '%s'" %file
+                            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
+                            extn = (proc.split()[0]).decode("utf-8")
+                            #lb(file+ " ===> "+ extn)
+                            if (extn == "HTML") & (ext != "html"):
+                                filechk = file.replace(ext,"html")
+                                filechk2 = Path(filechk)
+                                if filechk2.is_file():
+                                    lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
+                                else:
+                                    # rename the file
+                                    lb("Rename file: "+file+" from: "+ext+(" => ")+"html")
+                                    if write():
+                                        shutil.move(file, file.replace(ext,"html"))
+                                        c += 1
+                            elif (extn == "HTML") & (ext == "html"):
+                                continue
+                            elif (extn == "JPEG") & (ext == "jpg"):
+                                continue
+                            elif (extn == "JPEG") & (ext != "jpg"):
+                                filechk = file.replace(ext,"jpg")
+                                filechk2 = Path(filechk)
+                                if filechk2.is_file():
+                                    lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
+                                else:
+                                    # rename the file
+                                    lb("Rename file: "+file+" from: "+ext+(" => ")+"jpg")
+                                    if write():
+                                        shutil.move(file, file.replace(ext,"jpg"))
+                                        c += 1
+                            elif (extn == "ISO") & (ext == "mp4"):
+                                continue
+                            elif (extn == "RIFF") & (ext == "avi"):
+                                continue                                
                             else:
-                                lb(file+": File type not determined for PNG, Renaming to: => "+file.replace(ext,"jpg"))
-                                if write():
-                                    shutil.move(file, file.replace(ext,"jpg"))
-                                    c += 1
-                        else:
-                            d += 1
-                            continue
-                            #lb("Error: "+file+": Could not determine file type")
+                                lb("Unknown File: "+file+" Format: "+extn)
+                                d += 1
                 else:
                     # Correct Extension
                     continue
             else:
+                # Extensionless: Could not determine file type by imghdr, try File
                 if ftype == None:
-                    d += 1
+                    cmd = "/usr/bin/file '%s'" %file
+                    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
+                    extn = (proc.split()[0]).decode("utf-8")
+                    #lb(file+ " ===> "+ extn)
+                    if extn == "HTML":
+                        newname = file +".html"
+                        filechk = Path(newname)
+                        if filechk.is_file():
+                            lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk))
+                        else:
+                            # rename the file
+                            lb("Extensionless: "+file+" : has no ext, Appending: .html")
+                            if write():
+                                shutil.move(file, newname)
+                                c += 1
+                    elif extn == "JPEG":
+                        newname = file +".jpg"
+                        filechk = Path(newname)
+                        if filechk.is_file():
+                            lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk))
+                        else:
+                            # rename the file
+                            lb("Extensionless: "+file+" : has no ext, Appending: .jpg")
+                            if write():
+                                shutil.move(file, newname)
+                                c += 1
+                    #elif extn == "ISO":
+                    #    continue
+                    #elif extn == "RIFF":
+                    #    continue                                
+                    else:
+                        lb("Unknown Extensionless File: "+file+" Format: "+extn)
+                        d += 1
+
                 elif ftype == "jpeg":
-                    #if not ext:
-                    newname = file +"."+ "jpg"
+                    newname = file +".jpg"
                     filechk = Path(newname)
                     if filechk.is_file():
                         lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
@@ -176,10 +241,9 @@ def correct():
                         lb(file+": has no ext, Appending: jpg")
                         if write():
                             shutil.move(file, newname)
-                            c += 1            
+                            c += 1
                 else:
                     newname = file +"."+ ftype
-                    #if not ext:
                     filechk = Path(newname)
                     if filechk.is_file():
                         lb("Error: "+file+": File already EXISTS, not overwriting: "+str(filechk))
@@ -191,7 +255,7 @@ def correct():
                                 
                 #lb("Error: "+file+": No Extension detected, Run Missing Extensions function.")
         frame.config(cursor="")
-        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c)+" Unsupported Files: "+str(d))
+        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c))
         lb("")
 
 def webpconv():
@@ -583,7 +647,7 @@ menu.add_cascade(label='Help', menu=item4)
 root.config(menu=menu)
 
 # Entry Widget
-Label(frame1, text="Directory: ", width=15).grid(row=0, column=0)
+Button(frame1, text="Browse: ", width=12, command=browse).grid(row=0, column=0)
 en = Entry(frame1, width=60)
 en.grid(row=0, column=1)
 en.focus_set()
