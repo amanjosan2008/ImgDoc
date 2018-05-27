@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Duplicate, Similar, Search, Top Fn add => 50% + 50% ProgBar
+# "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147 
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -91,7 +92,7 @@ def count():
         for file in fullpath():
             x.append(file)
         leng = len(x)
-        
+
 def count_lb():
     count()
     lb("Count: "+str(leng))
@@ -143,55 +144,49 @@ def correct():
                                     shutil.move(file, file.replace(ext,ftype))
                                     c += 1
                     else:
-                        #if ext == "png":
-                        #    filechk = file.replace(ext,"jpg")
-                        #    filechk2 = Path(filechk)
-                        #    if filechk2.is_file():
-                        #        lb("Error: "+file+": File already EXISTS, not overwritting: "+filechk2)
-                        #    else:
-                        #        lb(file+": File type not determined for PNG, Renaming to: => "+file.replace(ext,"jpg"))
-                        #        if write():
-                        #            shutil.move(file, file.replace(ext,"jpg"))
-                        #            c += 1
-                        #else:
-                            # Could not determine file type by imghdr, try File
-                            cmd = "/usr/bin/file '%s'" %file
+                        # Could not determine file type by imghdr, try File
+                        cmd = "/usr/bin/file '%s'" %file
+                        try:
                             proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
-                            extn = (proc.split()[0]).decode("utf-8")
-                            #lb(file+ " ===> "+ extn)
-                            if (extn == "HTML") & (ext != "html"):
-                                filechk = file.replace(ext,"html")
-                                filechk2 = Path(filechk)
-                                if filechk2.is_file():
-                                    lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
-                                else:
-                                    # rename the file
-                                    lb("Rename file: "+file+" from: "+ext+(" => ")+"html")
-                                    if write():
-                                        shutil.move(file, file.replace(ext,"html"))
-                                        c += 1
-                            elif (extn == "HTML") & (ext == "html"):
-                                continue
-                            elif (extn == "JPEG") & (ext == "jpg"):
-                                continue
-                            elif (extn == "JPEG") & (ext != "jpg"):
-                                filechk = file.replace(ext,"jpg")
-                                filechk2 = Path(filechk)
-                                if filechk2.is_file():
-                                    lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
-                                else:
-                                    # rename the file
-                                    lb("Rename file: "+file+" from: "+ext+(" => ")+"jpg")
-                                    if write():
-                                        shutil.move(file, file.replace(ext,"jpg"))
-                                        c += 1
-                            elif (extn == "ISO") & (ext == "mp4"):
-                                continue
-                            elif (extn == "RIFF") & (ext == "avi"):
-                                continue                                
+                        except:
+                            lb("Error: Invalid file name: "+str(file))
+                            d += 1
+                            continue
+                        extn = (proc.split()[0]).decode("utf-8")
+                        #lb(file+ " ===> "+ extn)
+                        if (extn == "HTML") & (ext != "html"):
+                            filechk = file.replace(ext,"html")
+                            filechk2 = Path(filechk)
+                            if filechk2.is_file():
+                                lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
                             else:
-                                lb("Unknown File: "+file+" Format: "+extn)
-                                d += 1
+                                # rename the file
+                                lb("Rename file: "+file+" from: "+ext+(" => ")+"html")
+                                if write():
+                                    shutil.move(file, file.replace(ext,"html"))
+                                    c += 1
+                        elif (extn == "HTML") & (ext == "html"):
+                            continue
+                        elif (extn == "JPEG") & (ext == "jpg"):
+                            continue
+                        elif (extn == "JPEG") & (ext != "jpg"):
+                            filechk = file.replace(ext,"jpg")
+                            filechk2 = Path(filechk)
+                            if filechk2.is_file():
+                                lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
+                            else:
+                                # rename the file
+                                lb("Rename file: "+file+" from: "+ext+(" => ")+"jpg")
+                                if write():
+                                    shutil.move(file, file.replace(ext,"jpg"))
+                                    c += 1
+                        elif (extn == "ISO") & (ext == "mp4"):
+                            continue
+                        elif (extn == "RIFF") & (ext == "avi"):
+                            continue
+                        else:
+                            #lb("Unknown File: "+file+" Format: "+extn)
+                            d += 1
                 else:
                     # Correct Extension
                     continue
@@ -227,7 +222,7 @@ def correct():
                     #elif extn == "ISO":
                     #    continue
                     #elif extn == "RIFF":
-                    #    continue                                
+                    #    continue
                     else:
                         lb("Unknown Extensionless File: "+file+" Format: "+extn)
                         d += 1
@@ -255,7 +250,7 @@ def correct():
                                 
                 #lb("Error: "+file+": No Extension detected, Run Missing Extensions function.")
         frame.config(cursor="")
-        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c))
+        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c)+" Invalid File formats/Names: "+str(d))
         lb("")
 
 def webpconv():
@@ -698,5 +693,4 @@ except:
     lb("Error: icon.png file not found")
 
 root.mainloop()
-
 
