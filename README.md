@@ -37,6 +37,6 @@ Pending Tasks:
 - Option to Remove other special characters , ! ? #
 - Audio alert after long operation/Status bar red icon when Busy
 - Stats fn - Sort results
-- Search function difference: if not (img == x[i]) Windows only:
-    D:/Files/Claims/Mediassit/Test/SmokyMountainCabinsWithViewsLarge.jpeg
-    D:/Files/Claims/Mediassit/Test\SmokyMountainCabinsWithViewsLarge.jpeg
+- Search function different slash: if not (img == x[i]) in Windows only:
+    D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
+    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
