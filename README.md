@@ -33,10 +33,10 @@ Requirements:
 Pending Tasks:
 - Taskbar Icon in file
 - If Ext == JPEG, rename to JPG
-- Feature to append (1) in name if existing file
+- Feature to append name_(1) in name if file exists
 - Option to Remove other special characters , ! ? #
 - Audio alert after long operation/Status bar red icon when Busy
 - Stats fn - Sort results
 - Search function different slash: if not (img == x[i]) in Windows only:
-    D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
-    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
+ D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
+ D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
