@@ -42,3 +42,4 @@ Pending Tasks:
  D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
 - Duplicate, Similar, Search, Top Fn add => 50% + 50% ProgBar
 - "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
+- Save log file to /var/log/image-ext-doctor.log
