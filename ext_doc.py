@@ -3,11 +3,6 @@
 # "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
 # Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
 # FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
-####### ==>> Create Backup in /tmp or /home directory or in Path specified
-####### ==>> Display Backup tar dir Path & Name, Size(Mb), Count
-####### ==>> Delete: Move2Trash
-# Count()/Count_lb():  All Functions show File count in start of the function.
-# Show current File no/Total files in the status bar.
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -106,17 +101,18 @@ def count_lb():
     lb("Count: "+str(leng))
     lb("")
 
-
 # Main Functions
 def correct():
     if validate():
         bar['value'] = 1
         p,c,d = 1,0,0
         count()
+        count_lb()
         frame.config(cursor="watch")
         frame.update()
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             # find the correct extension
@@ -265,11 +261,13 @@ def webpconv():
         bar['value'] = 1
         p = 1
         count()
+        count_lb()
         frame.config(cursor="watch")
         frame.update()
         c = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             name, ext = os.path.splitext(file)
@@ -309,11 +307,13 @@ def colonrep():
         bar['value'] = 1
         p = 1
         count()
+        count_lb()
         frame.config(cursor="watch")
         frame.update()
         c = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             if re.search(r':', file):
@@ -343,10 +343,12 @@ def duplicate():
         bar['value'] = 1
         p = 1
         count()
+        count_lb()
         x,y = [],[]
         d = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             afile = open(file, 'rb')
@@ -402,11 +404,13 @@ def similar():
         bar['value'] = 1
         p = 1
         count()
+        count_lb()
         frame.config(cursor="watch")
         frame.update()
         x,y,z,a = [],[],[],1
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             try:
@@ -443,21 +447,25 @@ def search():
         bar['value'] = 1
         p = 1
         count()
+        count_lb()
         currdir = os.getcwd()
         img = filedialog.askopenfilename(parent=frame, initialdir=currdir, title='Please select an image')
         try:
             hash1 = imagehash.whash(PIL.Image.open(img))
         except AttributeError:
             lb("Info: Operation cancelled by user")
+            frame.config(cursor="")
             return
         except OSError:
             lb("Info: Corrupt image selected: "+img)
+            frame.config(cursor="")
             return
         lb("Searching Image: "+img)
         x,y = [],[]
         c = 0
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             try:
@@ -483,9 +491,11 @@ def hugepng():
         bar['value'] = 1
         p,c,d = 1,0,0
         count()
+        count_lb()
         x = {}
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             filesz = os.path.getsize(file)
@@ -539,11 +549,13 @@ def backup():
         bar['value'] = 1
         p = 1
         count()
+        count_lb()
         for name in fullpath():
             wr.write(name + '\n')
             tar.add(name)
             lb("File backup: "+name)
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
         frame.config(cursor="")
@@ -596,11 +608,13 @@ def top():
         bar['value'] = 1
         p = 1
         count()
+        count_lb()
         frame.config(cursor="watch")
         frame.update()
         x = {}
         for file in fullpath():
             bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
             filesize = (os.path.getsize(file))
@@ -696,18 +710,20 @@ scrollbar2 = Scrollbar(frame3, orient=HORIZONTAL)
 listbox = Listbox(frame3, height=30, width=100, yscrollcommand=scrollbar1.set, xscrollcommand=scrollbar2.set)
 listbox.xview_scroll(3, "pages")
 listbox.yview_scroll(3, "pages")
-listbox.grid(row=0, columnspan=2)
+listbox.grid(row=0, columnspan=3)
 scrollbar1.config(command=listbox.yview)
-scrollbar1.grid(row=0, column=2, ipady = 226)
+scrollbar1.grid(row=0, column=3, ipady = 226)
 scrollbar2.config(command=listbox.xview)
-scrollbar2.grid(row=1, column=0, columnspan=2, ipadx = 386)
+scrollbar2.grid(row=1, column=0, columnspan=3, ipadx = 386)
 
 lb("Ready, Log Output: ")
 
 # Progress Bar
-Label(frame3, text="Progress:", width=15).grid(row=2, column=0)
-bar = ttk.Progressbar(frame3, length=678)
-bar.grid(row=2, column=1)
+Label(frame3, text="Progress:", width=15).grid(row=3, column=0)
+bar = ttk.Progressbar(frame3, length=500)
+bar.grid(row=3, column=1)
+val = StringVar()
+Label(frame3, textvariable=val, width=15).grid(row=3, column=2)
 
 root.title("File Extension Doctor")
 
