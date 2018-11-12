@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 # Duplicate, Similar, Search, Top Fn add => 50% + 50% ProgBar
-# "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147 
+# "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
+# Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
+# FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
+####### ==>> Create Backup in /tmp or /home directory or in Path specified
+####### ==>> Display Backup tar dir Path & Name, Size(Mb), Count
+####### ==>> Delete: Move2Trash
+# Count()/Count_lb():  All Functions show File count in start of the function.
+# Show current File no/Total files in the status bar.
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -13,6 +20,7 @@ from PIL import Image
 from itertools import islice
 from hashlib import md5
 import imagehash, webbrowser
+from send2trash import send2trash
 
 root = Tk()
 
@@ -60,7 +68,7 @@ def validate():
 
 def browse():
     try:
-        dir = filedialog.askdirectory(parent=frame, initialdir='/data/.folder/', title='Please select a directory')
+        dir = filedialog.askdirectory(parent=frame, initialdir='/data2/.folder/', title='Please select a directory')
     except:
         dir = filedialog.askdirectory(parent=frame, initialdir=os.getcwd(), title='Please select a directory')
     en.delete(0,END)
@@ -97,6 +105,7 @@ def count_lb():
     count()
     lb("Count: "+str(leng))
     lb("")
+
 
 # Main Functions
 def correct():
@@ -247,8 +256,6 @@ def correct():
                         if write():
                             shutil.move(file, newname)
                             c += 1
-                                
-                #lb("Error: "+file+": No Extension detected, Run Missing Extensions function.")
         frame.config(cursor="")
         lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c)+" Invalid File formats/Names: "+str(d))
         lb("")
@@ -279,7 +286,7 @@ def webpconv():
                             c += 1
                             if fpath.is_file():
                                 lb(file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
-                                os.remove(file)
+                                send2trash(file)
                             else:
                                 lb("Error: "+file+": Conversion to JPG failed")
                         else:
@@ -361,15 +368,31 @@ def duplicate():
             for j in range(len(y)):
                 if b[i] == y[j]:
                     if c == 0:
-                        lb("Original File: "+ x[j])
+                        if write():
+                        #lb("Orig: "+ x[j])
+                            subdir = os.path.dirname(x[j])
+                            new_subdir = os.path.join(subdir,"ORIGS")
+                            if not os.path.exists(new_subdir):
+                                os.makedirs(new_subdir)
+                            name = os.path.basename(x[j])
+                            newfile = new_subdir + "/" + name
+                            if os.path.isfile(newfile):
+                                lb("Error: " + name + " ALREADY EXIST UNDER: " + new_subdir)
+                                continue
+                            else:
+                                os.rename(x[j], newfile)
+                                lb("Moved: " + name + " => " + new_subdir)
+                        else:
+                            lb("Info: " + x[j]+" WILL BE MOVED TO SUBDIR")
                         c += 1
                     else:
                         if write():
-                            os.remove(x[j])
-                            lb("Deleted duplicate file: "+ x[j])
+                            send2trash(x[j])
+                            lb("Del : "+ x[j])
                             d += 1
                         else:
-                            lb("Info: "+x[j]+" WILL BE deleted")
+                            lb("Info: "+x[j]+" WILL BE DELETED")
+            lb("")
         frame.config(cursor="")
         lb("Info: Total Files: "+ str(leng) +" Deleted Files: "+ str(d))
         lb("")
@@ -481,7 +504,7 @@ def hugepng():
                             im.save(fnpng, "jpeg")
                             if fpath.is_file():
                                 lb(file+"("+filesize(file)+"MB)"+ " deleted and Converted file saved as: "+ fnpng+ "("+filesize(fnpng)+"MB)")
-                                os.remove(file)
+                                send2trash(file)
                                 c += 1
                             else:
                                 lb("Error: "+file+": Conversion to JPG failed")
@@ -503,12 +526,13 @@ def hugepng():
 # More Auxillary Functions
 def backup():
     if validate():
+        tmp = str(Path.home()) + "/imgdoc/tmp/"
         try:
-            os.mkdir("tmp")
+            os.makedirs(tmp, exist_ok=True)
         except Exception:
             pass
-        tar = tarfile.open(os.path.join("tmp/" + "backup.tar.gz"), "w:gz")
-        wr = open(os.path.join("tmp/" + "file_list.txt"), "w")
+        tar = tarfile.open(os.path.join(tmp + "backup.tar.gz"), "w:gz")
+        wr = open(os.path.join(tmp + "file_list.txt"), "w")
         wr.write("List of files:\n\n")
         frame.config(cursor="watch")
         frame.update()
@@ -526,6 +550,16 @@ def backup():
         wr.close()
         tar.close()
         lb("Info: Total Files backed up: "+str(p-1))
+        lb("Info: Backup file saved: " + tmp + "backup.tar.gz" + " (" + filesize(tmp + "backup.tar.gz") +" MB)")
+        lb("")
+
+def delete():
+    #if validate():
+        tmp = str(Path.home()) + "/imgdoc/tmp/"
+        lb("Info: Deleting Backup files:")
+        for file in os.listdir(tmp):
+            lb(file +" (" + filesize(tmp + file) + " MB)")
+            send2trash(tmp + file)
         lb("")
 
 def verify():
@@ -543,15 +577,6 @@ def verify():
                 lb("Error: Operation failed, some files missing, Restore from backup !!!")
         except NameError:
             lb("Error: Count function not used before operation, cannot use this feature now")
-        lb("")
-
-def delete():
-    if validate():
-        try:
-            shutil.rmtree("tmp")
-            lb("Info: Backup Directory Deleted")
-        except:
-            lb("Error: Backup not found")
         lb("")
 
 def stats():
@@ -693,4 +718,3 @@ except:
     lb("Error: icon.png file not found")
 
 root.mainloop()
-
