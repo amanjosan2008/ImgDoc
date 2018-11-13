@@ -3,7 +3,6 @@
 # "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
 # Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
 # FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
-# Rename backup files automatically
 # List Files Fn show file size
 
 from tkinter import *
