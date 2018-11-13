@@ -3,6 +3,8 @@
 # "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
 # Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
 # FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
+# Rename backup files automatically
+# List Files Fn show file size
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -16,6 +18,7 @@ from itertools import islice
 from hashlib import md5
 import imagehash, webbrowser
 from send2trash import send2trash
+from datetime import datetime
 
 root = Tk()
 
@@ -537,12 +540,17 @@ def hugepng():
 def backup():
     if validate():
         tmp = str(Path.home()) + "/imgdoc/tmp/"
+        now = datetime.now()
+        time = now.strftime("%Y%m%d_%H%M%S")
+        stamp = en.get().split('/')[-1] + "_" + time
+        backup_file = "backup_" + stamp + ".tar.gz"
+        file_list = "filelist_" + stamp + ".txt"
         try:
             os.makedirs(tmp, exist_ok=True)
         except Exception:
             pass
-        tar = tarfile.open(os.path.join(tmp + "backup.tar.gz"), "w:gz")
-        wr = open(os.path.join(tmp + "file_list.txt"), "w")
+        tar = tarfile.open(os.path.join(tmp + backup_file), "w:gz")
+        wr = open(os.path.join(tmp + file_list), "w")
         wr.write("List of files:\n\n")
         frame.config(cursor="watch")
         frame.update()
@@ -562,7 +570,7 @@ def backup():
         wr.close()
         tar.close()
         lb("Info: Total Files backed up: "+str(p-1))
-        lb("Info: Backup file saved: " + tmp + "backup.tar.gz" + " (" + filesize(tmp + "backup.tar.gz") +" MB)")
+        lb("Info: Backup file saved: " + tmp + backup_file + " (" + filesize(tmp + backup_file) +" MB)")
         lb("")
 
 def delete():
