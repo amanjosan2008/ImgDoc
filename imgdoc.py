@@ -1,8 +1,18 @@
 #!/usr/bin/env python3
+
 # Duplicate, Similar, Search, Top Fn add => 50% + 50% ProgBar
 # "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
 # Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
 # FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
+# Taskbar Icon in file
+# Feature to append name_(1) in name if file exists
+# Audio alert after long operation/Status bar red icon when Busy
+# Search function different slash: if not (img == x[i]) in Windows only:
+#    D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
+#    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
+# Save log file to /var/log/image-ext-doctor.log
+
+
 
 from tkinter import *
 from tkinter import filedialog, ttk
