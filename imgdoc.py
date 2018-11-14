@@ -11,6 +11,7 @@
 #    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
 # Save log file to /var/log/image-ext-doctor.log
 # Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
+# Correct Ext fn not working with " ' " symbol
 
 from tkinter import *
 from tkinter import filedialog, ttk
