@@ -3,7 +3,6 @@
 # "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
 # Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
 # FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
-# List Files Fn show file size
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -82,12 +81,13 @@ def write():
         #lb("Error: Write Access not enabled")
         return False
 
-def ls():
+def list_files():
     if validate():
         lb("File List:")
         for file in fullpath():
-            name = os.path.relpath(file, en.get())
-            lb(" - "+name)
+            #name = os.path.relpath(file, en.get())
+            lb(" - "+ os.path.relpath(file, en.get()) + " (" + filesize(file)+"MB)")
+            #lb(" - "+name)
     lb("")
 
 def count():
@@ -101,6 +101,18 @@ def count():
 def count_lb():
     count()
     lb("Count: "+str(leng))
+    lb("")
+
+def openfolder():
+    if validate():
+        if os.path.isdir(en.get()):
+            path = 'nautilus "%s"' %en.get()
+            subprocess.Popen(path, shell=True)
+            lb("Directory opened: "+en.get())
+        else:
+            lb("Error: Directory does not exists")
+    else:
+        lb("Error: Directory not selected")
     lb("")
 
 # Main Functions
@@ -557,10 +569,11 @@ def backup():
         p = 1
         count()
         count_lb()
+        lb("Backing up files:")
         for name in fullpath():
             wr.write(name + '\n')
             tar.add(name)
-            lb("File backup: "+name)
+            lb(" - "+ os.path.relpath(name, en.get()))
             bar['value'] = int(p/leng*100)
             val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
@@ -568,17 +581,29 @@ def backup():
         frame.config(cursor="")
         wr.close()
         tar.close()
-        lb("Info: Total Files backed up: "+str(p-1))
-        lb("Info: Backup file saved: " + tmp + backup_file + " (" + filesize(tmp + backup_file) +" MB)")
+        lb("Info: Backup file: " + tmp + backup_file + " (" +str(p-1)+ " files, " + filesize(tmp + backup_file) +" MB)")
+        lb("")
+
+def list_backups():
+        tmp = str(Path.home()) + "/imgdoc/tmp/"
+        if len(os.listdir(tmp)) > 0:
+            lb("Info: Backup files:")
+            for file in os.listdir(tmp):
+                lb(" - "+ file +" (" + filesize(tmp + file) + " MB)")
+        else:
+            lb("Error: No Files in Dir")
         lb("")
 
 def delete():
     #if validate():
         tmp = str(Path.home()) + "/imgdoc/tmp/"
-        lb("Info: Deleting Backup files:")
-        for file in os.listdir(tmp):
-            lb(file +" (" + filesize(tmp + file) + " MB)")
-            send2trash(tmp + file)
+        if len(os.listdir(tmp)) > 0:
+            lb("Info: Deleting Backup files:")
+            for file in os.listdir(tmp):
+                lb(" - "+ file +" (" + filesize(tmp + file) + " MB)")
+                send2trash(tmp + file)
+        else:
+            lb("Error: No Files in Dir")
         lb("")
 
 def verify():
@@ -607,7 +632,10 @@ def stats():
                 x.append(ext)
         y = set(x)
         for i in y:
-            lb(i+" : "+str(x.count(i)))
+            if not i:
+                lb("Null : " +str(x.count(i)))
+            else:
+                lb(i+" : "+str(x.count(i)))
         lb("")
 
 def top():
@@ -632,11 +660,12 @@ def top():
             a = len(x)
         else:
             a = 10
+        lb("Top " + str(a) +" Files are:")
         for i in range(a):
             key, value = max(x.items(), key = lambda p: p[1])
             sizeinmb = (value/1000000)
             sizeflt = "{:.2f}".format(sizeinmb)
-            lb(key+" ("+sizeflt+" MB)")
+            lb(" - "+key+" ("+sizeflt+" MB)")
             x.pop((max(x, key=x.get)))
         frame.config(cursor="")
         lb("")
@@ -661,12 +690,13 @@ menu = Menu(frame)
 
 item1 = Menu(menu, tearoff=0)
 item1.add_command(label='Browse', command=browse)
+item1.add_command(label='Explore', command=openfolder)
 item1.add_separator()
 item1.add_command(label='Exit', command=exit)
 
 item2 = Menu(menu, tearoff=0)
 item2.add_command(label='File Count', command=count_lb)
-item2.add_command(label='List Files', command=ls)
+item2.add_command(label='List Files', command=list_files)
 item2.add_command(label='Top 10 Files', command=top)
 item2.add_separator()
 item2.add_command(label='Show Stats', command=stats)
@@ -674,6 +704,7 @@ item2.add_command(label='Verify Files', command=verify)
 
 item3 = Menu(menu, tearoff=0)
 item3.add_command(label='Backup Files', command=backup)
+item3.add_command(label='List Backup', command=list_backups)
 item3.add_command(label='Delete Backup', command=delete)
 
 item4 = Menu(menu, tearoff=0)
