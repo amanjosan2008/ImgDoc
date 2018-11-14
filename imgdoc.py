@@ -99,9 +99,10 @@ def count():
         leng = len(x)
 
 def count_lb():
-    count()
-    lb("Count: "+str(leng))
-    lb("")
+    if validate():
+        count()
+        lb("Count: "+str(leng))
+        lb("")
 
 def openfolder():
     if validate():
