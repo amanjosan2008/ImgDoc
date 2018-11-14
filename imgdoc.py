@@ -10,6 +10,7 @@
 #    D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
 #    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
 # Save log file to /var/log/image-ext-doctor.log
+# Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
 
 from tkinter import *
 from tkinter import filedialog, ttk
