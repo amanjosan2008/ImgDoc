@@ -352,7 +352,7 @@ def colonrep():
                         lb("Renamed file: "+file+(" => ")+file.replace(":","_"))
                         c += 1
                     else:
-                        lb("Info: Renamed file: "+file+(" will be saved as: ")+file.replace(":","_"))
+                        lb("Info: Rename file: "+file+(" as: ")+file.replace(":","_"))
             else:
                 continue
                 #lb("Error: Colon not found in file: "+file.split('/')[-1])
