@@ -2,23 +2,30 @@
 
 # Duplicate, Similar, Search, Top Fn add => 90% + 10% ProgBar
 # "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
-# Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
+#
+# Add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
+#   List all files with special characters
+#   Option to replace with space or _
+#
 # FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
 # Taskbar Icon in file
 # Feature to append name_(1) in name if file exists
 # Audio alert after long operation/Status bar red icon when Busy
 # Save log file to:-  str(Path.home()) + "/imgdoc/image-ext-doctor.log"
 # Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
-
+#
 # Search function different slash: if not (img == x[i]) in Windows only:
 #    D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
 #    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
-
+#
 # Correct Ext fn not working with " ' " symbol
-#pip3 install python-magic
-#brew install libmagic
-#import magic
-#magic.from_file("/Users/amandeep/python/ImgDoc/Ma'il.zip")
+#   pip3 install python-magic
+#   brew install libmagic
+#   magic.from_file("/Users/amandeep/python/ImgDoc/Ma'il.zip")
+# Check Magic Function
+# Rewrite Correct Fn, remove Duplication; create sub-functions
+#
+# Open file on click in Listbox
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -33,6 +40,7 @@ from hashlib import md5
 import imagehash, webbrowser
 from send2trash import send2trash
 from datetime import datetime
+import magic
 
 root = Tk()
 
@@ -181,14 +189,16 @@ def correct():
                                     c += 1
                     else:
                         # Could not determine file type by imghdr, try File
-                        cmd = "/usr/bin/file '%s'" %file
-                        try:
-                            proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
-                        except:
-                            lb("Error: Invalid file name: "+str(file))
-                            d += 1
-                            continue
-                        extn = (proc.split()[0]).decode("utf-8")
+                        #cmd = "/usr/bin/file '%s'" %file
+                        #try:
+                        #    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
+                        #except:
+                        #    lb("Error: Invalid file name: "+str(file))
+                        #    d += 1
+                        #    continue
+                        #extn = (proc.split()[0]).decode("utf-8")
+                        proc = magic.from_file(file)
+                        extn = proc.split()[0]
                         #lb(file+ " ===> "+ extn)
                         if (extn == "HTML") & (ext != "html"):
                             filechk = file.replace(ext,"html")
@@ -216,22 +226,36 @@ def correct():
                                 if write():
                                     shutil.move(file, file.replace(ext,"jpg"))
                                     c += 1
+                        elif (extn == "Zip") & (ext != "zip"):
+                            filechk = file.replace(ext,"zip")
+                            filechk2 = Path(filechk)
+                            if filechk2.is_file():
+                                lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
+                            else:
+                                # rename the file
+                                lb("Rename file: "+file+" from: "+ext+(" => ")+"zip")
+                                if write():
+                                    shutil.move(file, file.replace(ext,"zip"))
+                                    c += 1
                         elif (extn == "ISO") & (ext == "mp4"):
                             continue
                         elif (extn == "RIFF") & (ext == "avi"):
                             continue
                         else:
-                            #lb("Unknown File: "+file+" Format: "+extn)
+                            lb("Unknown File: "+file+" Format: "+extn)
                             d += 1
                 else:
                     # Correct Extension
+                    #lb("Info: Correct Extension: "+file)
                     continue
             else:
                 # Extensionless: Could not determine file type by imghdr, try File
                 if ftype == None:
-                    cmd = "/usr/bin/file '%s'" %file
-                    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
-                    extn = (proc.split()[0]).decode("utf-8")
+                    #cmd = "/usr/bin/file '%s'" %file
+                    #proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
+                    #extn = (proc.split()[0]).decode("utf-8")
+                    proc = magic.from_file(file)
+                    extn = proc.split()[0]
                     #lb(file+ " ===> "+ extn)
                     if extn == "HTML":
                         newname = file +".html"
@@ -252,6 +276,17 @@ def correct():
                         else:
                             # rename the file
                             lb("Extensionless: "+file+" : has no ext, Appending: .jpg")
+                            if write():
+                                shutil.move(file, newname)
+                                c += 1
+                    elif extn == "Zip":
+                        newname = file +".zip"
+                        filechk = Path(newname)
+                        if filechk.is_file():
+                            lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk))
+                        else:
+                            # rename the file
+                            lb("Extensionless: "+file+" : has no ext, Appending: .zip")
                             if write():
                                 shutil.move(file, newname)
                                 c += 1
