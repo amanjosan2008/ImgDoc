@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 # Duplicate, Similar, Search, Top Fn add => 90% + 10% ProgBar
 # "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
 # Or add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
@@ -6,12 +7,18 @@
 # Taskbar Icon in file
 # Feature to append name_(1) in name if file exists
 # Audio alert after long operation/Status bar red icon when Busy
+# Save log file to:-  str(Path.home()) + "/imgdoc/image-ext-doctor.log"
+# Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
+
 # Search function different slash: if not (img == x[i]) in Windows only:
 #    D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
 #    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
-# Save log file to /var/log/image-ext-doctor.log
-# Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
+
 # Correct Ext fn not working with " ' " symbol
+#pip3 install python-magic
+#brew install libmagic
+#import magic
+#magic.from_file("/Users/amandeep/python/ImgDoc/Ma'il.zip")
 
 from tkinter import *
 from tkinter import filedialog, ttk
