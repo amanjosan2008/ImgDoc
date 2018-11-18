@@ -1,32 +1,5 @@
 #!/usr/bin/env python3
 
-# Duplicate, Similar, Search, Top Fn add => 90% + 10% ProgBar
-# "/bin/sh: 1: Syntax error: Unterminated quoted string" ==> Bash error in line 147
-#
-# Add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
-#   List all files with special characters
-#   Option to replace with space or _
-#
-# FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files
-# Taskbar Icon in file
-# Feature to append name_(1) in name if file exists
-# Audio alert after long operation/Status bar red icon when Busy
-# Save log file to:-  str(Path.home()) + "/imgdoc/image-ext-doctor.log"
-# Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
-#
-# Search function different slash: if not (img == x[i]) in Windows only:
-#    D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
-#    D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
-#
-# Correct Ext fn not working with " ' " symbol
-#   pip3 install python-magic
-#   brew install libmagic
-#   magic.from_file("/Users/amandeep/python/ImgDoc/Ma'il.zip")
-# Check Magic Function
-# Rewrite Correct Fn, remove Duplication; create sub-functions
-#
-# Open file on click in Listbox
-
 from tkinter import *
 from tkinter import filedialog, ttk
 import sys, glob, os, re
@@ -237,12 +210,14 @@ def correct():
                                 if write():
                                     shutil.move(file, file.replace(ext,"zip"))
                                     c += 1
+                        elif (extn == "Zip") & (ext == "zip"):
+                            continue
                         elif (extn == "ISO") & (ext == "mp4"):
                             continue
                         elif (extn == "RIFF") & (ext == "avi"):
                             continue
                         else:
-                            lb("Unknown File: "+file+" Format: "+extn)
+                            lb("Unknown File: "+file+" Ext: " +ext + " Format: "+extn)
                             d += 1
                 else:
                     # Correct Extension
