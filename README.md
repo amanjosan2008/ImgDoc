@@ -51,4 +51,4 @@ Current Issues:
 - Open file on click in Listbox
 - Fn to extract Zip Files & delete originals
 
-New Features to be added:
+#New Features to be added:
