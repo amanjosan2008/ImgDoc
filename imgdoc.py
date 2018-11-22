@@ -82,9 +82,7 @@ def list_files():
     if validate():
         lb("File List:")
         for file in fullpath():
-            #name = os.path.relpath(file, en.get())
             lb(" - "+ os.path.relpath(file, en.get()) + " (" + filesize(file)+"MB)")
-            #lb(" - "+name)
     lb("")
 
 def count():
@@ -104,8 +102,14 @@ def count_lb():
 def openfolder():
     if validate():
         if os.path.isdir(en.get()):
-            path = 'nautilus "%s"' %en.get()
-            subprocess.Popen(path, shell=True)
+            #path = 'nautilus "%s"' %en.get()
+            #subprocess.Popen(path, shell=True)
+            if sys.platform == 'darwin':
+                subprocess.check_call(['open', '--', en.get()])
+            elif sys.platform == 'linux2':
+                subprocess.check_call(['xdg-open', '--', en.get()])
+            elif sys.platform == 'win32':
+                subprocess.check_call(['explorer', en.get()])
             lb("Directory opened: "+en.get())
         else:
             lb("Error: Directory does not exists")
@@ -161,15 +165,7 @@ def correct():
                                     shutil.move(file, file.replace(ext,ftype))
                                     c += 1
                     else:
-                        # Could not determine file type by imghdr, try File
-                        #cmd = "/usr/bin/file '%s'" %file
-                        #try:
-                        #    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
-                        #except:
-                        #    lb("Error: Invalid file name: "+str(file))
-                        #    d += 1
-                        #    continue
-                        #extn = (proc.split()[0]).decode("utf-8")
+                        # Could not determine file type by imghdr, try with magic
                         proc = magic.from_file(file)
                         extn = proc.split()[0]
                         #lb(file+ " ===> "+ extn)
@@ -224,11 +220,8 @@ def correct():
                     #lb("Info: Correct Extension: "+file)
                     continue
             else:
-                # Extensionless: Could not determine file type by imghdr, try File
+                # Extensionless: Could not determine file type by imghdr, try magic
                 if ftype == None:
-                    #cmd = "/usr/bin/file '%s'" %file
-                    #proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).communicate()[0].split(b':')[1]
-                    #extn = (proc.split()[0]).decode("utf-8")
                     proc = magic.from_file(file)
                     extn = proc.split()[0]
                     #lb(file+ " ===> "+ extn)
@@ -316,7 +309,7 @@ def webpconv():
                 fnpng = name + ".jpg"
                 fpath = Path(fnpng)
                 if fpath.is_file():
-                    lb("Error: "+file+"("+filesize(file)+"MB)"+": File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+"MB)")
+                    lb("Error: "+file+"("+filesize(file)+" MB)"+" : File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+" MB)")
                 else:
                     try:
                         if write():
@@ -324,14 +317,14 @@ def webpconv():
                             im.save(fnpng, "jpeg")
                             c += 1
                             if fpath.is_file():
-                                lb(file+"("+filesize(file)+"MB)"+" deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+"MB)")
+                                lb(file+"("+filesize(file)+" MB)"+" : deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+" MB)")
                                 send2trash(file)
                             else:
-                                lb("Error: "+file+": Conversion to JPG failed")
+                                lb("Error: "+file+" : Conversion to JPG failed")
                         else:
-                            lb("Info: "+file+"("+filesize(file)+"MB)"+" be deleted and Converted file be saved as: "+name+".jpg")
+                            lb("Info: "+file+"("+filesize(file)+" MB)"+" be deleted and Converted file be saved as: "+name+".jpg")
                     except OSError as e:
-                        lb("Error: "+file+": Exception occured: "+str(e))
+                        lb("Error: "+file+" : Exception occured: "+str(e))
                         pass
                     except:
                         lb("Error: Exception error occured when processing: "+file)
