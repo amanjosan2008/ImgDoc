@@ -37,7 +37,7 @@ For MacOSX:
 Current Issues:
 - Duplicate, Similar, Search, Top Fn add => 90% + 10% ProgBar
 - FN subdir_mv stop if file exists in DUPS; do not delete other duplicate files from the Loop
-- Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
+- CHECK: Windows/Mac Explore Fn not working; Replace Nautilus CLI cmd
 - Search function different slash: if not (img == x[i]) in Windows only:
     D:/Files/Test/SmokyMountainCabinsWithViewsLarge.jpeg
     D:/Files/Test\SmokyMountainCabinsWithViewsLarge.jpeg
