@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 
+# Dependancy:
+## sudo apt install python3-magic
+## sudo pip3 install imagehash
+
 from tkinter import *
 from tkinter import filedialog, ttk
 import sys, glob, os, re
@@ -61,7 +65,7 @@ def validate():
 
 def browse():
     try:
-        dir = filedialog.askdirectory(parent=frame, initialdir='/data2/.folder/', title='Please select a directory')
+        dir = filedialog.askdirectory(parent=frame, initialdir='/data/.folder/', title='Please select a directory')
     except:
         dir = filedialog.askdirectory(parent=frame, initialdir=os.getcwd(), title='Please select a directory')
     en.delete(0,END)
@@ -690,6 +694,54 @@ def top():
         frame.config(cursor="")
         lb("")
 
+def empty():
+    if validate():
+        bar['value'] = 1
+        p = 1
+        count()
+        count_lb()
+        frame.config(cursor="watch")
+        frame.update()
+        for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
+            root.update_idletasks()
+            p += 1
+            filesize = (os.path.getsize(file))
+            if filesize == 0:
+                relfile = os.path.relpath(file, en.get())
+                if write():
+                    lb("Deleted: " + relfile + " (" + str(filesize)+" b)")
+                    send2trash(file)
+                else:
+                    lb("File: " + relfile + " (" + str(filesize)+" b) WILL BE DELETED")
+        frame.config(cursor="")
+        lb("")
+
+def small():
+    if validate():
+        bar['value'] = 1
+        p = 1
+        count()
+        count_lb()
+        frame.config(cursor="watch")
+        frame.update()
+        for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
+            root.update_idletasks()
+            p += 1
+            filesize = (os.path.getsize(file))
+            if filesize > 0 and filesize < 5000 :
+                relfile = os.path.relpath(file, en.get())
+                if write():
+                    lb("Deleted: " + relfile + " (" + str(filesize)+" b)")
+                    send2trash(file)
+                else:
+                    lb("File: " + relfile + " (" + str(filesize)+" b) WILL BE DELETED")
+        frame.config(cursor="")
+        lb("")
+        
 def clear():
     listbox.delete(0, END)
 
@@ -761,6 +813,8 @@ Button(frame2, text="Duplicates", width=12, command=duplicate).grid(row=3)
 Button(frame2, text="Similar Images", width=12, command=similar).grid(row=4)
 Button(frame2, text="Image Search", width=12, command=search).grid(row=5)
 Button(frame2, text="Huge PNG", width=12, command=hugepng).grid(row=6)
+Button(frame2, text="Empty Files", width=12, command=empty).grid(row=7)
+Button(frame2, text="Small Files", width=12, command=small).grid(row=8)
 
 # Listbox & Scrollbar
 scrollbar1 = Scrollbar(frame3, orient=VERTICAL)
