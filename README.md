@@ -11,6 +11,7 @@ Features:
 - Correct Extensions
 - Webp Convert
 - Replace Colon
+- Remove Emoji from file names
 - Verify Files
 - Delete Backups
 - Find Duplicate
@@ -50,6 +51,7 @@ New Features to be added:
 - Add to Colonrep ==> Replace ' " , ? ` ~ ! @ # $ % ^ & * ; |
    List all files with special characters
    Option to replace with space or _
+- Merge Emoji function with Colonrep function
 - Taskbar Icon in file
 - Feature to append name_(1) in name if file exists
 - Audio alert after long operation/Status bar red icon when Busy
