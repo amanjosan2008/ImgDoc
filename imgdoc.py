@@ -35,6 +35,30 @@ frame2.grid(row=1, column=0, rowspan=2, sticky=N)
 frame3 = Frame(frame, height=300, width=400, bd=3, relief=GROOVE)
 frame3.grid(row=1, column=1, sticky=N)
 
+
+# Check Emoji code
+emoj = re.compile("["
+        u"\U0001F600-\U0001F64F"  # emoticons
+        u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+        u"\U0001F680-\U0001F6FF"  # transport & map symbols
+        u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+        u"\U00002500-\U00002BEF"  # chinese char
+        u"\U00002702-\U000027B0"
+        u"\U00002702-\U000027B0"
+        u"\U000024C2-\U0001F251"
+        u"\U0001f926-\U0001f937"
+        u"\U00010000-\U0010ffff"
+        u"\u2640-\u2642" 
+        u"\u2600-\u2B55"
+        u"\u200d"
+        u"\u23cf"
+        u"\u23e9"
+        u"\u231a"
+        u"\ufe0f"  # dingbats
+        u"\u3030"
+            "]+", re.UNICODE)
+
+
 # Auxillary Functions
 def fullpath():
     if var2.get():
@@ -53,7 +77,11 @@ def filesize(file):
     return sizeflt
 
 def lb(text):
-    listbox.insert(END, text)
+    if re.search(emoj, text):
+        text = "EMOJI: " + re.sub(emoj, '', text)
+        listbox.insert(END, text)
+    else:
+        listbox.insert(END, text)
     listbox.yview(END)
 
 def validate():
@@ -136,7 +164,11 @@ def correct():
             root.update_idletasks()
             p += 1
             # find the correct extension
-            ftype = imghdr.what(file)
+            try:
+                ftype = imghdr.what(file)
+            except PermissionError:
+                lb("Error: Permission Error: "+file)
+                continue
             ext = os.path.splitext(file)[1][1:]
             # find files with the (incorrect) extension to rename
             if ext:
@@ -370,6 +402,42 @@ def colonrep():
             else:
                 continue
                 #lb("Error: Colon not found in file: "+file.split('/')[-1])
+        frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c))
+        lb("")
+
+def emoji():
+    if validate():
+        bar['value'] = 1
+        p = 1
+        count()
+        count_lb()
+        frame.config(cursor="watch")
+        frame.update()
+        c = 0
+        for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
+            root.update_idletasks()
+            p += 1
+            
+            if re.search(emoj, file):
+                filechk = re.sub(emoj, '', file)
+                filechk2 = Path(filechk)
+                if filechk2.is_file():
+                    lb("Error removing EMOJI: File already EXISTS, not overwriting: "+ str(filechk2))
+                else:
+                    # rename the file
+                    if write():
+                        shutil.move(file, filechk)
+                        lb("Removed EMOJI: " + filechk)
+                        c += 1
+                    else:
+                        lb("Info: Remove EMOJI from filename: " + filechk)
+            else:
+                continue
+                #lb("Error: Emoji not found in file: "+file.split('/')[-1])
+
         frame.config(cursor="")
         lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c))
         lb("")
@@ -808,13 +876,14 @@ d.grid(row=0, column=3)
 # Buttons for Main Functions
 Button(frame2, text="Correct Extensions", width=12, command=correct).grid(row=0)
 Button(frame2, text="Webp Convert", width=12, command=webpconv).grid(row=1)
-Button(frame2, text="Replace Colon", width=12, command=colonrep).grid(row=2)
-Button(frame2, text="Duplicates", width=12, command=duplicate).grid(row=3)
-Button(frame2, text="Similar Images", width=12, command=similar).grid(row=4)
-Button(frame2, text="Image Search", width=12, command=search).grid(row=5)
-Button(frame2, text="Huge PNG", width=12, command=hugepng).grid(row=6)
-Button(frame2, text="Empty Files", width=12, command=empty).grid(row=7)
-Button(frame2, text="Small Files", width=12, command=small).grid(row=8)
+Button(frame2, text="Remove Colon", width=12, command=colonrep).grid(row=2)
+Button(frame2, text="Remove Emoji", width=12, command=emoji).grid(row=3)
+Button(frame2, text="Duplicates", width=12, command=duplicate).grid(row=4)
+Button(frame2, text="Similar Images", width=12, command=similar).grid(row=5)
+Button(frame2, text="Image Search", width=12, command=search).grid(row=6)
+Button(frame2, text="Huge PNG", width=12, command=hugepng).grid(row=7)
+Button(frame2, text="Empty Files", width=12, command=empty).grid(row=8)
+Button(frame2, text="Small Files", width=12, command=small).grid(row=9)
 
 # Listbox & Scrollbar
 scrollbar1 = Scrollbar(frame3, orient=VERTICAL)
@@ -837,7 +906,7 @@ bar.grid(row=3, column=1)
 val = StringVar()
 Label(frame3, textvariable=val, width=15).grid(row=3, column=2)
 
-root.title("File Extension Doctor")
+root.title("Image Extension Doctor")
 
 try:
     img = PhotoImage(file='icon.png')
