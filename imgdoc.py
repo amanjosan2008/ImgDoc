@@ -4,6 +4,15 @@
 ## sudo apt install python3-magic
 ## sudo pip3 install imagehash
 
+# To Do:
+# Dir Count => Show Files count in Root dir
+# en.get fetch path from Buttons on right side
+# File Browser Integrate inside main dir
+# Full screen Mode
+# Remember add favorites
+# Restart Function
+# openfolder Function not working
+
 from tkinter import *
 from tkinter import filedialog, ttk
 import sys, glob, os, re
@@ -62,7 +71,7 @@ emoj = re.compile("["
 # Auxillary Functions
 def fullpath():
     if var2.get():
-        for root,dir,fname in os.walk(en.get()):
+        for root,dirs,fname in os.walk(en.get()):
             for file in fname:
                 yield (os.path.join(root, file))
     else:
@@ -91,11 +100,13 @@ def validate():
         lb("Error: Incorrect or No Path Entered")
         return False
 
+dir = '/'
 def browse():
+    global dir
     try:
-        dir = filedialog.askdirectory(parent=frame, initialdir='/data/.folder/', title='Please select a directory')
+        dir = filedialog.askdirectory(parent=frame, initialdir=dir, title='Please select a directory')
     except:
-        dir = filedialog.askdirectory(parent=frame, initialdir=os.getcwd(), title='Please select a directory')
+        dir = filedialog.askdirectory(parent=frame, initialdir='/', title='Please select a directory')
     en.delete(0,END)
     en.insert(0,dir)
     try:
@@ -246,6 +257,18 @@ def correct():
                             continue
                         elif (extn == "ISO") & (ext == "mp4"):
                             continue
+                        # APK => ISO -> MP4
+                        elif (extn == "ISO") & (ext != "mp4"):
+                            filechk = file.replace(ext,"mp4")
+                            filechk2 = Path(filechk)
+                            if filechk2.is_file():
+                                lb("Error: "+file+": File already EXISTS, not overwritting: "+str(filechk2))
+                            else:
+                                # rename the file
+                                lb("Rename file: "+file+" from: "+ext+(" => ")+"mp4")
+                                if write():
+                                    shutil.move(file, file.replace(ext,"mp4"))
+                                    c += 1
                         elif (extn == "RIFF") & (ext == "avi"):
                             continue
                         else:
@@ -537,11 +560,41 @@ def similar():
                 pass
         for i in range(len(c)):
             lb("Duplicate set:"+ str(a))
-            a += 1
+            if write():
+                new_subdir = os.path.join(en.get(),"SIM" + str(a))
+                if os.path.exists(new_subdir):
+                    k = 1
+                    while True:    
+                        new_subdir = os.path.join(en.get(),"SIM" + str(a+k))
+                        #print(new_subdir, k)
+                        if os.path.exists(new_subdir):
+                            k += 1
+                        else:
+                            os.makedirs(new_subdir)
+                            break
+                else:
+                    os.makedirs(new_subdir)
+            else:
+                pass
             for j in range(len(y)):
                 if c[i]-y[j] < 8:
-                    #print(x[j], " Factor:", c[i]-y[j])
-                    lb("Dupes: "+ x[j] + " Factor: "+str(c[i]-y[j]))
+                    # Move Similar files to a Sub Dir
+                    if write():
+                        name = os.path.basename(x[j])
+                        newfile = new_subdir + "/" + name
+                        if os.path.isfile(newfile):
+                            lb("Error: " + x[j] + " ALREADY EXIST UNDER: " + new_subdir)
+                            continue
+                        else:
+                            try:
+                                os.rename(x[j], newfile)
+                                lb("Moved: " + x[j] + " => " + new_subdir + "   Factor: " + str(c[i]-y[j]))
+                            except FileNotFoundError:
+                                lb("File not found: " + x[j] + " => " + new_subdir + "   Factor: " + str(c[i]-y[j]))
+                    else:
+                        lb("Info: " + x[j]+" WILL BE MOVED TO SUBDIR - Factor: " + str(c[i]-y[j]))
+            a += 1
+            lb("")
         frame.config(cursor="")
         lb("Info: Total Files: "+ str(leng)+" Duplicate Sets: "+ str(a-1))
         lb("")
@@ -786,6 +839,31 @@ def empty():
         frame.config(cursor="")
         lb("")
 
+def empty_folder():
+    if validate():
+        bar['value'] = 1
+        p = 1
+        count()
+        count_lb()
+        frame.config(cursor="watch")
+        frame.update()
+
+        for rooted,dir_s,file in os.walk(en.get()):
+            for dir_nm in dir_s:
+                dirname = rooted +'/'+ dir_nm
+                count_files = len(os.listdir(dirname))
+                if count_files == 0:
+                    if write():
+                        send2trash(dirname)
+                        lb("Deleted: " + dirname)
+                    else:
+                        lb(dirname + ": WILL BE DELETED")
+                else:
+                    #lb(dirname + ': ' + str(count_files))
+                    pass
+        frame.config(cursor="")
+        lb("")
+
 def small():
     if validate():
         bar['value'] = 1
@@ -883,7 +961,8 @@ Button(frame2, text="Similar Images", width=12, command=similar).grid(row=5)
 Button(frame2, text="Image Search", width=12, command=search).grid(row=6)
 Button(frame2, text="Huge PNG", width=12, command=hugepng).grid(row=7)
 Button(frame2, text="Empty Files", width=12, command=empty).grid(row=8)
-Button(frame2, text="Small Files", width=12, command=small).grid(row=9)
+Button(frame2, text="Empty Folders", width=12, command=empty_folder).grid(row=9)
+Button(frame2, text="Small Files", width=12, command=small).grid(row=10)
 
 # Listbox & Scrollbar
 scrollbar1 = Scrollbar(frame3, orient=VERTICAL)
