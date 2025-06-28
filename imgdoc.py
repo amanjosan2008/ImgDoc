@@ -3,6 +3,7 @@
 # Dependancy:
 ## sudo apt install python3-magic
 ## sudo pip3 install imagehash
+## sudo pip3 install send2trash --break-system-packages
 
 # To Do:
 # Dir Count => Show Files count in Root dir
@@ -11,7 +12,6 @@
 # Full screen Mode
 # Remember add favorites
 # Restart Function
-# openfolder Function not working
 
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -20,11 +20,11 @@ import tarfile, subprocess
 import imghdr, shutil
 from pathlib import Path
 import collections, PIL
-from PIL import Image
+from PIL import Image, ImageSequence
 from itertools import islice
 from hashlib import md5
 import imagehash, webbrowser
-from send2trash import send2trash
+from send2trash import send2trash as st
 from datetime import datetime
 import magic
 
@@ -57,7 +57,7 @@ emoj = re.compile("["
         u"\U000024C2-\U0001F251"
         u"\U0001f926-\U0001f937"
         u"\U00010000-\U0010ffff"
-        u"\u2640-\u2642" 
+        u"\u2640-\u2642"
         u"\u2600-\u2B55"
         u"\u200d"
         u"\u23cf"
@@ -85,6 +85,10 @@ def filesize(file):
     sizeflt = "{:.2f}".format(sizeinmb)
     return sizeflt
 
+def filesizebytes(file):
+    size = os.path.getsize(file)
+    return size
+
 def lb(text):
     if re.search(emoj, text):
         text = "EMOJI: " + re.sub(emoj, '', text)
@@ -100,18 +104,30 @@ def validate():
         lb("Error: Incorrect or No Path Entered")
         return False
 
-dir = '/'
+#dir = '/'
 def browse():
-    global dir
+    global dir, loc_mem
+
     try:
-        dir = filedialog.askdirectory(parent=frame, initialdir=dir, title='Please select a directory')
-    except:
-        dir = filedialog.askdirectory(parent=frame, initialdir='/', title='Please select a directory')
+        dir = filedialog.askdirectory(parent=frame, initialdir=loc_mem, title='Please select a directory')
+    except NameError:
+        with open('last_loc.ini','r') as lfile:
+            dir = filedialog.askdirectory(parent=frame, initialdir=lfile.read(), title='Please select a directory')
+    #finally:
+        #dir = filedialog.askdirectory(parent=frame, initialdir='/', title='Please select a directory')
+    loc_mem = dir
     en.delete(0,END)
     en.insert(0,dir)
+
     try:
         count_lb()
     except:
+        pass
+
+    try:
+        with open('last_loc.ini','w') as wfile:
+            wfile.write(dir)
+    except TypeError:
         pass
 
 def write():
@@ -149,8 +165,10 @@ def openfolder():
             #subprocess.Popen(path, shell=True)
             if sys.platform == 'darwin':
                 subprocess.check_call(['open', '--', en.get()])
-            elif sys.platform == 'linux2':
-                subprocess.check_call(['xdg-open', '--', en.get()])
+            #elif sys.platform == 'linux2':
+                #subprocess.check_call(['xdg-open', '--', en.get()])
+            elif sys.platform == 'linux':
+                subprocess.check_call(['xdg-open', en.get()])
             elif sys.platform == 'win32':
                 subprocess.check_call(['explorer', en.get()])
             lb("Directory opened: "+en.get())
@@ -160,9 +178,21 @@ def openfolder():
         lb("Error: Directory not selected")
     lb("")
 
+def send2trash(file):
+    try:
+        fs = str(filesize(file))
+        if write():
+            st(file)
+            lb("Del : "+ file +" (" + fs+"mb)")
+        else:
+            lb("Info: "+ file + " (" +fs+"mb) " +" WILL BE DELETED")
+    except Exception as e:
+        lb(e)
+
 # Main Functions
 def correct():
     if validate():
+        lb("Extensions function:")
         bar['value'] = 1
         p,c,d = 1,0,0
         count()
@@ -349,8 +379,22 @@ def correct():
         lb("Info: Total Files: "+ str(leng) +" Processed Files: "+ str(c)+" Invalid File formats/Names: "+str(d))
         lb("")
 
+def IsAGif(FilePath):
+    try:
+        MediaFile = Image.open(FilePath)
+        Index = 0
+        for Frame in ImageSequence.Iterator(MediaFile):
+            Index += 1
+        if Index > 1: #Must mean the the .webp is a gif because it has more than one frame
+            return True
+        else: #Must mean that the .webp has 1 frame which makes it a image
+            return False
+    except: #If the .webp can't be opened then it is most likely not a .gif or .webp
+        return False
+
 def webpconv():
     if validate():
+        lb("WebP Convert function:")
         bar['value'] = 1
         p = 1
         count()
@@ -365,29 +409,32 @@ def webpconv():
             p += 1
             name, ext = os.path.splitext(file)
             if ext == ".webp":
-                fnpng = name + ".jpg"
-                fpath = Path(fnpng)
-                if fpath.is_file():
-                    lb("Error: "+file+"("+filesize(file)+" MB)"+" : File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+" MB)")
+                if IsAGif(file):
+                    lb("Info: GIF Webp: "+ file)
                 else:
-                    try:
-                        if write():
-                            im = Image.open(file).convert("RGB")
-                            im.save(fnpng, "jpeg")
-                            c += 1
-                            if fpath.is_file():
-                                lb(file+"("+filesize(file)+" MB)"+" : deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+" MB)")
-                                send2trash(file)
+                    fnpng = name + ".jpg"
+                    fpath = Path(fnpng)
+                    if fpath.is_file():
+                        lb("Error: "+file+"("+filesize(file)+" MB)"+" : File already EXISTS, not overwritting: "+fnpng+"("+filesize(fnpng)+" MB)")
+                    else:
+                        try:
+                            if write():
+                                im = Image.open(file).convert("RGB")
+                                im.save(fnpng, "jpeg")
+                                c += 1
+                                if fpath.is_file():
+                                    lb(file+"("+filesize(file)+" MB)"+" : deleted and Converted file saved as: "+fnpng+"("+filesize(fnpng)+" MB)")
+                                    st(file)
+                                else:
+                                    lb("Error: "+file+" : Conversion to JPG failed")
                             else:
-                                lb("Error: "+file+" : Conversion to JPG failed")
-                        else:
-                            lb("Info: "+file+"("+filesize(file)+" MB)"+" be deleted and Converted file be saved as: "+name+".jpg")
-                    except OSError as e:
-                        lb("Error: "+file+" : Exception occured: "+str(e))
-                        pass
-                    except:
-                        lb("Error: Exception error occured when processing: "+file)
-                        pass
+                                lb("Info: "+file+"("+filesize(file)+" MB)"+" be deleted and Converted file be saved as: "+name+".jpg")
+                        except OSError as e:
+                            lb("Error: "+file+" : Exception occured: "+str(e))
+                            pass
+                        except:
+                            lb("Error: Exception error occured when processing: "+file)
+                            pass
             else:
                 #File is not Webp, Skipping
                 continue
@@ -397,6 +444,7 @@ def webpconv():
 
 def colonrep():
     if validate():
+        lb("Colon Replace function:")
         bar['value'] = 1
         p = 1
         count()
@@ -431,6 +479,7 @@ def colonrep():
 
 def emoji():
     if validate():
+        lb("Emoji function:")
         bar['value'] = 1
         p = 1
         count()
@@ -443,7 +492,7 @@ def emoji():
             val.set(str(p)+"/"+str(leng))
             root.update_idletasks()
             p += 1
-            
+
             if re.search(emoj, file):
                 filechk = re.sub(emoj, '', file)
                 filechk2 = Path(filechk)
@@ -467,6 +516,7 @@ def emoji():
 
 def duplicate():
     if validate():
+        lb("MD5 Duplicate function:")
         frame.config(cursor="watch")
         frame.update()
         bar['value'] = 1
@@ -475,6 +525,7 @@ def duplicate():
         count_lb()
         x,y = [],[]
         d = 0
+
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             val.set(str(p)+"/"+str(leng))
@@ -490,8 +541,11 @@ def duplicate():
             hash = hasher.hexdigest()
             y.append(hash)
             x.append(file)
+
         a = 1
+
         b = [item for item, count in collections.Counter(y).items() if count > 1]
+
         for i in range(len(b)):
             lb("Duplicate Set: "+ str(a))
             a += 1
@@ -518,16 +572,18 @@ def duplicate():
                         c += 1
                     else:
                         if write():
-                            send2trash(x[j])
+                            st(x[j])
                             lb("Del : "+ x[j])
                             d += 1
                         else:
                             lb("Info: "+x[j]+" WILL BE DELETED")
             lb("")
+
         frame.config(cursor="")
         lb("Info: Total Files: "+ str(leng) +" Deleted Files: "+ str(d))
         lb("")
 
+'''
 def similar():
     if validate():
         bar['value'] = 1
@@ -537,6 +593,7 @@ def similar():
         frame.config(cursor="watch")
         frame.update()
         x,y,z,a = [],[],[],1
+        # Calculate Image Hashes
         for file in fullpath():
             bar['value'] = int(p/leng*100)
             val.set(str(p)+"/"+str(leng))
@@ -548,23 +605,27 @@ def similar():
                 y.append(hash)
             except OSError:
                 pass
+        #
         c = [item for item, count in collections.Counter(y).items() if count > 1]
+        # Create a list z containing similar hashes
         for i in range(len(c)):
             for j in range(i+1, len(c)):
                     if abs(c[i] - c[j]) < 8:
                         z.append(c[i])
+        #
         for i in range(len(z)):
             try:
                 c.remove(z[i])
             except:
                 pass
+        # List Duplicates & move them to a dir
         for i in range(len(c)):
             lb("Duplicate set:"+ str(a))
             if write():
                 new_subdir = os.path.join(en.get(),"SIM" + str(a))
                 if os.path.exists(new_subdir):
                     k = 1
-                    while True:    
+                    while True:
                         new_subdir = os.path.join(en.get(),"SIM" + str(a+k))
                         #print(new_subdir, k)
                         if os.path.exists(new_subdir):
@@ -598,9 +659,217 @@ def similar():
         frame.config(cursor="")
         lb("Info: Total Files: "+ str(leng)+" Duplicate Sets: "+ str(a-1))
         lb("")
+'''
+
+
+def hashdup():
+    if validate():
+        lb("Hash Duplicate function:")
+        bar['value'] = 1
+        p = 1
+        a = 1
+        count()
+        count_lb()
+        frame.config(cursor="watch")
+        frame.update()
+        hash_dict = {}
+
+        for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
+            root.update_idletasks()
+            p += 1
+            try:
+                hash = imagehash.whash(Image.open(file))
+                if hash in hash_dict.keys():
+                    prev_file =  hash_dict.get(hash)
+                    #lb("Duplicate: " +" "+ str(a) +" "+ str(hash) +" "+ file +" "+ str(filesizebytes(file)) +" "+ prev_file +" "+ str(filesizebytes(prev_file)))
+                    lb("Duplicate: " +" "+ str(a))
+                    # delete exactly same image with smaller size
+                    if filesizebytes(file) > filesizebytes(prev_file):
+                        lb('Info: Larger File - ' + file +" "+ str(filesizebytes(file))+'b')
+                        send2trash(prev_file)
+                        a += 1
+                        hash_dict.update({hash:file})
+                    elif filesizebytes(prev_file) > filesizebytes(file):
+                        lb('Info: Larger File - ' + prev_file +" "+ str(filesizebytes(prev_file))+'b')
+                        send2trash(file)
+                        a += 1
+                    # delete file with shorter name
+                    elif filesizebytes(prev_file) == filesizebytes(file):
+                        name_len_prev_file = len(prev_file.split('/')[-1])
+                        name_len_file = len(file.split('/')[-1])
+                        if name_len_prev_file > name_len_file:
+                            lb('Info: Same size, Longer Name:' + prev_file)
+                            send2trash(file)
+                            a += 1
+                        elif name_len_file > name_len_prev_file:
+                            lb('Info: Same size, Longer Name:' + file)
+                            send2trash(prev_file)
+                            a += 1
+                            hash_dict.update({hash:file})
+                        elif name_len_prev_file == name_len_file:
+                            # update to check file date & time, delete newer file
+                            lb('Info: Same Hash + Size + Name Length' + file + prev_file)
+                            prev_target = Path(prev_file)
+                            target = Path(file)
+                            ctime_prev_file = prev_target.stat().st_ctime
+                            ctime_file = target.stat().st_ctime
+                            if ctime_file > ctime_prev_file:
+                                lb('Info: Same size, Same name length, Older file:' + file)
+                                send2trash(prev_file)
+                                a += 1
+                                hash_dict.update({hash:file})
+                            elif ctime_prev_file > ctime_file:
+                                lb('Info: Same size, Same name length, Older file:' + prev_file)
+                                send2trash(file)
+                                a += 1
+                            else:
+                                lb('Info: Same size, Same name length, Same file age:' + file + prev_file)
+                                send2trash(file)
+                                a += 1
+                    else:
+                        lb('Info: ' + file +' Something unusual occurred')
+                    lb("")
+                else:
+                    hash_dict.update({hash:file})
+            except OSError:
+                pass
+            #lb("")
+        frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng)+" Duplicates: "+ str(a-1))
+        lb("")
+
+def similar():
+    if validate():
+        lb("Similar Images Hash function:")
+        bar['value'] = 1
+        p = 1
+        count()
+        count_lb()
+        frame.config(cursor="watch")
+        frame.update()
+
+        hash_dict = {}
+
+        # Compute Hashes
+        for file in fullpath():
+            bar['value'] = int(p/leng*100)
+            val.set(str(p)+"/"+str(leng))
+            root.update_idletasks()
+            p += 1
+            try:
+                hash = imagehash.whash(Image.open(file))
+                hash_dict.update({hash:file})
+            except OSError:
+                pass
+
+        #for k,v in hash_dict.items():
+            #print(k,v)
+
+        a = 1
+
+        # find similar files
+        for i in hash_dict.keys():
+            #print(i,type(i))
+            dups_found = 0
+            first_item = 0
+
+            # Compare Hashes
+            if hash_dict.get(i) != 0:
+                for j in hash_dict.keys():
+                    new_file_name = hash_dict.get(j)
+                    if new_file_name != 0:
+                        if i != j:
+                            if i - j < 8:
+                                if first_item == 0:
+                                    lb('Set: '+ str(a))
+                                #lb(new_file_name + ' ' + str(j) + ' ' + str(i-j))
+                                if write():
+                                    # Create SIM Folder    # ERROR
+                                    if first_item == 0:
+                                        #print(a)
+                                        new_subdir = os.path.join(en.get(),"SIM" + str(a))
+                                        if os.path.exists(new_subdir):
+                                            k = 1
+                                            while True:
+                                                new_subdir = os.path.join(en.get(),"SIM" + str(a+k))
+                                                #print(new_subdir, k)
+                                                if os.path.exists(new_subdir):
+                                                    k += 1
+                                                else:
+                                                    os.makedirs(new_subdir)
+                                                    break
+                                        else:
+                                            os.makedirs(new_subdir)
+
+                                    # Create new file name & move the file
+                                    name = os.path.basename(new_file_name)
+                                    newfile = new_subdir + "/" + name
+                                    if os.path.isfile(newfile):
+                                        lb("Info: " + new_file_name + " ALREADY EXIST UNDER: " + new_subdir + " Creating DUPE Subdir")
+                                        new_subdir_dupe = new_subdir + "/DUPE/"
+                                        if os.path.exists(new_subdir_dupe):
+                                            pass
+                                        else:
+                                            os.makedirs(new_subdir_dupe)
+                                        newdupefile = new_subdir_dupe + name
+                                        if os.path.isfile(newdupefile):
+                                            lb("Error: " + new_file_name + " ALREADY EXIST AGAIN UNDER: " + new_subdir_dupe + " Giving Up!")
+                                        else:
+                                            os.rename(new_file_name, newdupefile)
+                                            lb("Moved: " + new_file_name + " => " + new_subdir_dupe + "   Factor: " + str(i-j))
+                                    else:
+                                        try:
+                                            os.rename(new_file_name, newfile)
+                                            lb("Moved: " + new_file_name + " => " + new_subdir + "   Factor: " + str(i-j))
+                                        except FileNotFoundError:
+                                            lb("File not found: " + new_file_name + " => " + new_subdir + "   Factor: " + str(i-j))
+                                else:
+                                    lb("Info: " + new_file_name +" WILL BE MOVED TO SUBDIR - Factor: " + str(i-j))
+
+                                hash_dict.update({j:0})
+                                dups_found = 1
+                                first_item = 1
+                if dups_found == 1:
+                    orig_file_name = hash_dict.get(i)
+                    #lb(str(i) + orig_file_name)
+                    if write():
+                        orig_name = os.path.basename(orig_file_name)
+                        newfile2 = new_subdir + "/" + orig_name
+                        if os.path.isfile(newfile2):
+                            lb("Info: " + orig_file_name + " ALREADY EXIST UNDER: " + new_subdir)
+                            new_subdir_dupe2 = new_subdir + "/DUPE/"
+                            if os.path.exists(new_subdir_dupe2):
+                                pass
+                            else:
+                                os.makedirs(new_subdir_dupe2)
+                            newdupefile2 = new_subdir_dupe2 + name
+                            if os.path.isfile(newdupefile2):
+                                lb("Error: " + orig_file_name + " ALREADY EXIST AGAIN UNDER: " + new_subdir_dupe2 + " Giving Up!")
+                            else:
+                                os.rename(orig_file_name, newdupefile2)
+                                lb("Moved: " + orig_file_name + " => " + new_subdir_dupe2 + "   Factor: ")
+                        else:
+                            try:
+                                os.rename(orig_file_name, newfile2)
+                                lb("Moved: " + orig_file_name + " => " + new_subdir)
+                            except FileNotFoundError:
+                                lb("File not found: " + orig_file_name + " => " + new_subdir)
+                    else:
+                        lb("Info: " + orig_file_name +" WILL BE MOVED TO A SUBDIR")
+                    lb("")
+                    a += 1
+                hash_dict.update({i:0})
+
+        frame.config(cursor="")
+        lb("Info: Total Files: "+ str(leng)+" Duplicate Sets: "+ str(a-1))
+        lb("")
+
 
 def search():
     if validate():
+        lb("Image Search function:")
         frame.config(cursor="watch")
         frame.update()
         bar['value'] = 1
@@ -645,6 +914,7 @@ def search():
 
 def hugepng():
     if validate():
+        lb("Huge PNG function:")
         frame.config(cursor="watch")
         frame.update()
         bar['value'] = 1
@@ -673,7 +943,7 @@ def hugepng():
                             im.save(fnpng, "jpeg")
                             if fpath.is_file():
                                 lb(file+"("+filesize(file)+"MB)"+ " deleted and Converted file saved as: "+ fnpng+ "("+filesize(fnpng)+"MB)")
-                                send2trash(file)
+                                st(file)
                                 c += 1
                             else:
                                 lb("Error: "+file+": Conversion to JPG failed")
@@ -695,6 +965,7 @@ def hugepng():
 # More Auxillary Functions
 def backup():
     if validate():
+        lb("Backup function:")
         tmp = str(Path.home()) + "/imgdoc/tmp/"
         now = datetime.now()
         time = now.strftime("%Y%m%d_%H%M%S")
@@ -731,25 +1002,28 @@ def backup():
 
 def list_backups():
         tmp = str(Path.home()) + "/imgdoc/tmp/"
-        if len(os.listdir(tmp)) > 0:
-            lb("Info: Backup files:")
-            for file in os.listdir(tmp):
-                lb(" - "+ file +" (" + filesize(tmp + file) + " MB)")
+        if os.path.isdir(tmp):
+            if len(os.listdir(tmp)) > 0:
+                lb("Info: Backup files:")
+                for file in os.listdir(tmp):
+                    lb(" - "+ file +" (" + filesize(tmp + file) + " MB)")
+            else:
+                lb("Error: No Files in Dir")
         else:
-            lb("Error: No Files in Dir")
+            lb("Error: " + tmp + " dir does not exist!")
         lb("")
 
 def delete():
-    #if validate():
-        tmp = str(Path.home()) + "/imgdoc/tmp/"
-        if len(os.listdir(tmp)) > 0:
-            lb("Info: Deleting Backup files:")
-            for file in os.listdir(tmp):
-                lb(" - "+ file +" (" + filesize(tmp + file) + " MB)")
-                send2trash(tmp + file)
-        else:
-            lb("Error: No Files in Dir")
-        lb("")
+    lb("Backup Delete function:")
+    tmp = str(Path.home()) + "/imgdoc/tmp/"
+    if len(os.listdir(tmp)) > 0:
+        lb("Info: Deleting Backup files:")
+        for file in os.listdir(tmp):
+            lb(" - "+ file +" (" + filesize(tmp + file) + " MB)")
+            st(tmp + file)
+    else:
+        lb("Error: No Files in Dir")
+    lb("")
 
 def verify():
     if validate():
@@ -817,6 +1091,7 @@ def top():
 
 def empty():
     if validate():
+        lb("Empty files delete function:")
         bar['value'] = 1
         p = 1
         count()
@@ -833,7 +1108,7 @@ def empty():
                 relfile = os.path.relpath(file, en.get())
                 if write():
                     lb("Deleted: " + relfile + " (" + str(filesize)+" b)")
-                    send2trash(file)
+                    st(file)
                 else:
                     lb("File: " + relfile + " (" + str(filesize)+" b) WILL BE DELETED")
         frame.config(cursor="")
@@ -853,11 +1128,7 @@ def empty_folder():
                 dirname = rooted +'/'+ dir_nm
                 count_files = len(os.listdir(dirname))
                 if count_files == 0:
-                    if write():
-                        send2trash(dirname)
-                        lb("Deleted: " + dirname)
-                    else:
-                        lb(dirname + ": WILL BE DELETED")
+                    send2trash(dirname)
                 else:
                     #lb(dirname + ': ' + str(count_files))
                     pass
@@ -866,6 +1137,7 @@ def empty_folder():
 
 def small():
     if validate():
+        lb("Small file(<5kb) delete function:")
         bar['value'] = 1
         p = 1
         count()
@@ -882,12 +1154,12 @@ def small():
                 relfile = os.path.relpath(file, en.get())
                 if write():
                     lb("Deleted: " + relfile + " (" + str(filesize)+" b)")
-                    send2trash(file)
+                    st(file)
                 else:
                     lb("File: " + relfile + " (" + str(filesize)+" b) WILL BE DELETED")
         frame.config(cursor="")
         lb("")
-        
+
 def clear():
     listbox.delete(0, END)
 
@@ -952,17 +1224,18 @@ d = Checkbutton(frame1, text="Recursive", variable=var2)
 d.grid(row=0, column=3)
 
 # Buttons for Main Functions
-Button(frame2, text="Correct Extensions", width=12, command=correct).grid(row=0)
+Button(frame2, text="Extensions", width=12, command=correct).grid(row=0)
 Button(frame2, text="Webp Convert", width=12, command=webpconv).grid(row=1)
 Button(frame2, text="Remove Colon", width=12, command=colonrep).grid(row=2)
 Button(frame2, text="Remove Emoji", width=12, command=emoji).grid(row=3)
-Button(frame2, text="Duplicates", width=12, command=duplicate).grid(row=4)
-Button(frame2, text="Similar Images", width=12, command=similar).grid(row=5)
-Button(frame2, text="Image Search", width=12, command=search).grid(row=6)
-Button(frame2, text="Huge PNG", width=12, command=hugepng).grid(row=7)
-Button(frame2, text="Empty Files", width=12, command=empty).grid(row=8)
-Button(frame2, text="Empty Folders", width=12, command=empty_folder).grid(row=9)
-Button(frame2, text="Small Files", width=12, command=small).grid(row=10)
+Button(frame2, text="MD5 Duplicates", width=12, command=duplicate).grid(row=4)
+Button(frame2, text="Hash Duplicates", width=12, command=hashdup).grid(row=5)
+Button(frame2, text="Similar Images", width=12, command=similar).grid(row=6)
+Button(frame2, text="Image Search", width=12, command=search).grid(row=7)
+Button(frame2, text="Huge PNG", width=12, command=hugepng).grid(row=8)
+Button(frame2, text="Empty Files", width=12, command=empty).grid(row=9)
+Button(frame2, text="Empty Folders", width=12, command=empty_folder).grid(row=10)
+Button(frame2, text="Small Files", width=12, command=small).grid(row=11)
 
 # Listbox & Scrollbar
 scrollbar1 = Scrollbar(frame3, orient=VERTICAL)
